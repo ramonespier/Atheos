@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <title>Cadastro de Usuário</title>
 </head>
+
 <body>
   <h1>Cadastro</h1>
   <form id="cadastroForm">
@@ -28,10 +30,11 @@
       };
 
       try {
+
         const resposta = await fetch('http://localhost:3000/usuario', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Authorization': ''
           },
           body: JSON.stringify(usuarioData)
         });
@@ -52,4 +55,5 @@
     });
   </script>
 </body>
+
 </html>

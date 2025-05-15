@@ -9,4 +9,13 @@ const cadastrarUsuario = async (usuarioData) => {
     }
 }
 
+// const efetuarLogin = async (id) => {
+//     try {
+//         return await read('usuarios', `id=${id}`)
+//     } catch (err) {
+//         console.error('Erro ao realizar login;', err)
+//         throw err;
+//     }
+// }
+
 export { cadastrarUsuario }
