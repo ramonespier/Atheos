@@ -4,7 +4,7 @@ import { loginController } from "../controllers/AuthController.js";
 
 const router = express.Router()
 
-router.post('/', cadastrarUsuarioController)
+router.post('/cadastro', cadastrarUsuarioController)
 router.post('/login', loginController)
 
 router.options('/', (req, res) => {
