@@ -6,7 +6,7 @@ import usuarioRoutes from "./routes/usuarioRoutes.js";
 // import authRoutes from "./routes/authRoutes.js";
 
 const app = express()
-const port = 3000
+const port = 3001
 
 app.use(express.json())
 app.use(cors())
