@@ -1,14 +1,14 @@
 "use client"
-// pages/auth.jsx
+
 import { useState } from 'react';
 import Head from 'next/head';
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true); // Alternar entre login e cadastro
+  const [isLogin, setIsLogin] = useState(true); // alternar entre login e cadastro
   const [formData, setFormData] = useState({
     email: '',
     senha: '',
-    nome: '' // Apenas para cadastro
+    nome: '' // para cadastro
   });
   const [mensagem, setMensagem] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function AuthPage() {
       const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData)
       });
@@ -40,7 +40,17 @@ export default function AuthPage() {
 
       if (response.ok) {
         setMensagem(isLogin ? 'Login realizado com sucesso!' : 'Cadastro realizado com sucesso!');
-        // Limpar formulário após cadastro bem-sucedido
+      
+        if (isLogin && data.token) {
+          localStorage.setItem('token', data.token); //  armazena o token JWT
+          console.log('Token armazenado:', data.token);
+      
+          // redirecionamento após login
+          // window.location.href = '/dashboard'; // ou outra rota protegida
+        }
+
+      
+        // limpar formulário após cadastro
         if (!isLogin) {
           setFormData({
             email: '',
@@ -48,13 +58,11 @@ export default function AuthPage() {
             nome: ''
           });
         }
-        // Redirecionar após login (opcional)
-        if (isLogin) {
-          // window.location.href = '/dashboard'; // Descomente para redirecionar
-        }
+      
       } else {
         setMensagem(data.err || `Erro no ${isLogin ? 'login' : 'cadastro'}`);
       }
+      console.log(response)
     } catch (err) {
       console.error('Erro na requisição:', err);
       setMensagem('Erro na comunicação com o servidor.');
