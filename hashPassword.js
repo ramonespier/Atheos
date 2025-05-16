@@ -1,20 +1,17 @@
-import bcrypt from "bcryptjs";
-
 async function generateHashedPassword() {
-    const password = 'teste'; // substituir pela senha desejada // formulario
-
+    const password = '123'; // Substitua pela senha que você deseja hashear
     try {
+        // Gerar o salt
         const salt = await bcrypt.genSalt(10);
 
-        const hashedPassword = await bcrypt.hash(password, salt)
+        // Hashear a senha com o salt
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        console.log('Senha hasheada: ', hashedPassword)
-        process.exit(0)
-
-    } catch (err) {
-        console.error('Erro ao hashear a senha: ', err);
-        process.exit(1)
+        console.log('Senha Hasheada:', hashedPassword);
+        process.exit(0); // Encerra o processo após exibir o hash
+    } catch (error) {
+        console.error('Erro ao hashear a senha:', error);
+        process.exit(1); // Encerra o processo com código de erro
     }
 }
-
 generateHashedPassword();

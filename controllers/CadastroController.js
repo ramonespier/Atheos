@@ -18,19 +18,6 @@ const cadastrarUsuarioController = async (req, res) => {
     }
 }
 
-// const efetuarLoginController = async (req, res) => {
-//     try {
-//         const login = req.params.id
 
-//         if (login) {
-//             res.status(200).json({ message: 'Login realizado' }, login)
-//         } else {
-//             res.status(404).json({ err: 'Perfil não cadastrado' })
-//         }
-//     } catch (err) {
-//         console.error('Erro no controller ao efetuar login', err)
-//         res.status(500).json({ err: 'Erro ao efetuar login.' })
-//     }
-// }
 
 export { cadastrarUsuarioController }

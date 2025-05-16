@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 
 import usuarioRoutes from "./routes/usuarioRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
+// import authRoutes from "./routes/authRoutes.js";
 
 const app = express()
 const port = 3000
@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 app.use(express.static(path.resolve('public')));
 
 app.use('/usuario', usuarioRoutes);
-app.use('/auth', authRoutes)
+// app.use('/auth', authRoutes)
 
 app.use((req, res) => {
     res.status(404).json({message: 'Esse caminho não existe.'})

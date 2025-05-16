@@ -1,25 +1,27 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/jwt.js';
+import { JWT_SECRET } from '../config/jwt.js'; // Importar a chave
+secreta
 
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({ message: 'Não autorizado: token não fornecido' });
+        return res.status(401).json({
+            mensagem: 'Não autorizado: Token não fornecido'
+        });
     }
 
-    const [ , token] = authHeader.split(' ')
+    const [ , token] = authHeader.split(' ');
 
-
-    // analisar se token enviado é igual ao token do meu sistema
     try {
-        const decoded = jwt.verify(token, JWT_SECRET)
-        req.usuarioId = decoded.indexOf;
-        next()
-    } catch (err) {
-        return res.status(403).json({ message: 'Não autorizado: Token inválido.' })
-        // console.error('Erro ao verificar token', err)
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.usuarioId = decoded.id;
+        next();
+    } catch (error) {
+        return res.status(403).json({
+            mensagem: 'Não autorizado: Token inválido'
+        });
     }
-}
+};
 
 export default authMiddleware;

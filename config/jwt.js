@@ -1,5 +1,1 @@
-export const JWT_SECRET = '6c10690dbe34917dcdb93c00683ffeefcfb7830128ec8fb09000bbd6d07f1b4cb4ef6acd85ea22e339de5849969a953865e3f667946d26273896d820d8ecb43e' 
-
-// inserir o token crypto de acordo com o db atual
-
-// node generateSecret.js
+export const JWT_SECRET = '58d1e3d4d2b035a0c3b3cf3fcea6963cf85eb644eee4e78f095b11cfa0adcd3ad5ffa8c08ff23e9876c6051863c1bc07aea2d3275b9aa149b9a4e98235aa5c1f';

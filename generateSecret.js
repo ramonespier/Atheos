@@ -5,5 +5,4 @@ function generateSecretKey() {
 }
 
 const secretKey = generateSecretKey();
-
-console.log('Chave Secreta Gerada: ', secretKey);
+console.log('Chave Secreta Gerada:', secretKey);

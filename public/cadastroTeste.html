@@ -30,11 +30,10 @@
       };
 
       try {
-
         const resposta = await fetch('http://localhost:3000/usuario', {
           method: 'POST',
           headers: {
-            'Authorization': ''
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(usuarioData)
         });

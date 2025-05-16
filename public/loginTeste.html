@@ -1,30 +1,56 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+  <meta charset="UTF-8" />
+  <title>Cadastro de Usuário</title>
 </head>
+
 <body>
+  <h1>Cadastro</h1>
+  <form id="cadastroForm">
+    <input type="email" name="email" placeholder="Email" required /><br />
+    <input type="password" name="senha" placeholder="Senha" required /><br />
+    <button type="submit">Cadastrar</button>
+  </form>
 
-    <h1>Login</h1>
-    <form id="loginForm">
-        <input type="email" name="email" placeholder="email" required>
-        <input type="senha" name="senha" placeholder="senha" required>
-        <input type="submit" value='enviar'>
-    </form>
+  <div id="mensagem"></div>
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault()
+  <script>
+    document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-            const form = e.target
+      const form = e.target;
 
-            
-        })
+      const usuarioData = {
+        email: form.email.value,
+        senha: form.senha.value
+      };
 
+      try {
+        const resposta = await fetch('http://localhost:3000/usuario/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(usuarioData)
+        });
 
-    </script>
+        console.log(resposta)
 
+        const resultado = await resposta.json();
+
+        if (resposta) {
+          document.getElementById('mensagem').innerText = 'Usuário logado com sucesso!';
+        } else {
+          document.getElementById('mensagem').innerText = resultado.err || 'Erro no login.';
+        }
+      } catch (err) {
+        console.error('Erro na requisição:', err);
+        document.getElementById('mensagem').innerText = 'Erro na comunicação com o servidor.';
+      }
+    });
+  </script>
 </body>
+
 </html>
