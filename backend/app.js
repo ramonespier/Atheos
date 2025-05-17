@@ -15,8 +15,6 @@ app.get('/', (req, res) => {
     res.status(200).send('Atheos')
 })
 
-app.use(express.static(path.resolve('public')));
-
 app.use('/usuario', usuarioRoutes);
 // app.use('/auth', authRoutes)
 

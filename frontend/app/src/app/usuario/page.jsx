@@ -44,12 +44,11 @@ export default function AuthPage() {
         if (isLogin && data.token) {
           localStorage.setItem('token', data.token); //  armazena o token JWT
           console.log('Token armazenado:', data.token);
-      
+
           // redirecionamento após login
-          // window.location.href = '/dashboard'; // ou outra rota protegida
+           window.location.href = '/'; // ou outra rota protegida
         }
 
-      
         // limpar formulário após cadastro
         if (!isLogin) {
           setFormData({
@@ -197,3 +196,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+export { localStorage }

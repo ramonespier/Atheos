@@ -18,6 +18,4 @@ const cadastrarUsuarioController = async (req, res) => {
     }
 }
 
-
-
 export { cadastrarUsuarioController }

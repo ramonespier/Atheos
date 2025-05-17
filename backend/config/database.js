@@ -58,6 +58,22 @@ async function read(table, where) {
     }
 }
 
+async function readUserData(table, userId) {
+    const connection = await getConnection();
+    try {
+        const [rows] = await connection.execute(
+            `SELECT * FROM ${table} WHERE id = ?`, 
+            [userId] 
+        );
+        return rows[0] || null;
+    } catch (err) {
+        console.error('Erro ao ler registro: ', err);
+        throw err;
+    } finally {
+        connection.release();
+    }
+}
+
 // FUNÇÃO PARA INSERIR DADOS
 async function create(table, data) {
     const connection = await getConnection()
@@ -133,4 +149,4 @@ async function compare(senha, hash) {
     }
 }
 
-export { readAll, read, create, update, deleteRecord, compare }
+export { readAll, read, readUserData, create, update, deleteRecord, compare }
