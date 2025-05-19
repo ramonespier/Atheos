@@ -1,16 +1,17 @@
 import express from "express";
 import { cadastrarUsuarioController } from "../controllers/cadastroController.js";
 import { loginController } from "../controllers/AuthController.js";
+import { getUsuarioLogado } from "../controllers/UserController.js"
 import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router()
 
 router.post('/cadastro', cadastrarUsuarioController)
 router.post('/login', loginController)
-// router.get('/data', authMiddleware)
+router.get('/autenticado', authMiddleware, getUsuarioLogado)
 
 router.options('/', (req, res) => {
-    res.setHeader('Allow', 'POST, OPTIONS')
+    res.setHeader('Allow', 'GET, POST, OPTIONS')
     res.status(204).send()
 })
 

@@ -10,16 +10,21 @@ const authMiddleware = (req, res, next) => {
         });
     }
 
-    const [ , token] = authHeader.split(' ');
+    const [, token] = authHeader.split(' ');
 
     try {
+
+        console.log('Token recebido:', token);
         const decoded = jwt.verify(token, JWT_SECRET);
+        console.log('Token decodificado:', decoded);
+        
         req.usuarioId = decoded.id;
         next();
     } catch (error) {
-        return res.status(403).json({
-            mensagem: 'Não autorizado: Token inválido'
-        });
+        if (error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: 'Não autorizado: Token expirado' });
+        }
+        res.status(403).json({ message: 'Não autorizado: Token inválido' });
     }
 };
 
