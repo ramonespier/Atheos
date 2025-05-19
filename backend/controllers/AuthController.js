@@ -18,7 +18,7 @@ const loginController = async (req, res) => {
             return res.status(401).json({ mensagem: 'Senha incorreta' });
         }
 
-        const token = jwt.sign({ id: usuario.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: usuario.id, email: usuario.email, senha: usuario.senha }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ mensagem: 'Login realizado com sucesso', token });
 

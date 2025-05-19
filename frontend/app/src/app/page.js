@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
 
-  let token = localStorage.getItem('token')
+  // let token = localStorage.getItem('token')
 
   if (!token) {
     console.log('Token não encontrado')
@@ -14,6 +14,7 @@ export default function Home() {
 
   console.log(token)  
 
+  const [token, setToken] = useState(null)
   const [usuarios, setUsuarios] = useState([])
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Home() {
       .then(res => res.json())
       .then(data => setUsuarios(data))
       .catch(err => console.error('Erro ao buscar usuários: ', err))
-  }, [])
+  }, [token])
 
 
   return (
