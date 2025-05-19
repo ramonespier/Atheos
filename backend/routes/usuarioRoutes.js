@@ -6,7 +6,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router()
 
 router.post('/cadastro', cadastrarUsuarioController)
-router.get('/login', loginController)
+router.post('/login', loginController)
 // router.get('/data', authMiddleware)
 
 router.options('/', (req, res) => {
