@@ -65,7 +65,8 @@ export default function Autenticado() {
       <p>id: {usuario.id}</p>
       <p>criado_em: {usuario.criado_em}</p>
 
-      <span onClick={disconnect}>Desconectar</span>
+      <span className="bg-blue-200 m-2 font-black text-black cursor-pointer" onClick={disconnect}>Desconectar</span>
+      <a className="bg-blue-200 m-2 font-black text-black cursor-pointer" href="/financas">Finanças</a>
     </div>
   );
 }
