@@ -17,7 +17,6 @@ export default function Financas() {
         }
     })
 
-
     return (
         <div>oiii</div>
     )
