@@ -10,11 +10,29 @@ const categoriaController = async (req, res) => {
         }
 
         res.status(200).json(categoria)
-        
+
     } catch (err) {
         console.error('Erro no controller ao buscar categorias do usuário.', err)
         res.status(500).json({ err: 'Erro ao buscar categoria de usuário.' })
     }
 }
 
-export { categoriaController }
+const adicionarCategoriaController = async (req, res) => {
+    try {
+        const { nome, tipo } = req.body;
+
+        const categoriasData = {
+            nome: nome,
+            tipo: tipo,
+            usuario_id: req.usuarioId
+        };
+
+        const categoriaId = await adicionarCategoria(categoriasData);
+        res.status(201).json({ message: 'Categoria criada com sucesso!', categoriaId })
+    } catch (err) {
+        console.error('Erro ao criar categoria', err)
+        res.status(500).json({ message: 'Erro ao criar categoria', err })
+    }
+}
+
+export { categoriaController, adicionarCategoriaController }
