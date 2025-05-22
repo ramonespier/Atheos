@@ -47,7 +47,7 @@ export default function Home() {
 
           // redirecionamento após login
           setTimeout(() => {
-            window.location.href = '/autenticado';
+            window.location.href = '/dashboard'; //link para o dash
           }, 600); 
         }
 
