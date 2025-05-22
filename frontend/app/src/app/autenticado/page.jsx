@@ -3,27 +3,17 @@
 import { useEffect, useState } from "react";
 
 function disconnect() {
-    localStorage.removeItem('token')
-    window.location.href = '/'
+  localStorage.removeItem('token')
+  window.location.href = '/'
 }
 
 export default function Autenticado() {
-  const [usuario, setUsuario] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-  
-  
+  const [usuario, setUsuario] = useState([]);
+
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
-    if (!token) {
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 600);
-      return;
-    }
-    
-    setCarregando(true);
-    
+
     fetch('http://localhost:3001/usuario/autenticado', {
       method: 'GET',
       headers: {
@@ -31,32 +21,23 @@ export default function Autenticado() {
         'Content-Type': 'application/json'
       }
     })
-    .then(res => {
-      console.log('Status da resposta: ', res.status)
-      if (!res.ok) throw new Error('Falha na autenticação');
-      return res.json();
-    })
-    .then(data => {
-      setUsuario(data);
-      setCarregando(false);
-    })
-    .catch(err => {
-      console.error('Erro:', err);
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 600);
-    });
+      .then(res => {
+        console.log('Status da resposta: ', res.status)
+        if (!res.ok) throw new Error('Falha na autenticação');
+        return res.json();
+      })
+      .then(data => {
+        setUsuario(data);
+
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        window.location.href = '/login'
+      });
   }, []);
-  
-  if (carregando) {
-    return <div>Carregando...</div>;
-  }
-  
-  if (!usuario) {
-    return <div>Não foi possível carregar os dados do usuário</div>;
-  }
+
   console.log(usuario)
-  
+
   return (
     <div>
       <h1>Bem-vindo!</h1>
@@ -66,7 +47,7 @@ export default function Autenticado() {
       <p>criado_em: {usuario.criado_em}</p>
 
       <span className="bg-blue-200 m-2 font-black text-black cursor-pointer" onClick={disconnect}>Desconectar</span>
-      <a className="bg-blue-200 m-2 font-black text-black cursor-pointer" href="/financas">Finanças</a>
+      <a className="bg-blue-200 m-2 font-black text-black cursor-pointer" href="/autenticado/financas">Finanças</a>
     </div>
   );
 }
