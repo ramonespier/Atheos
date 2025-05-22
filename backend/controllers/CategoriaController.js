@@ -35,4 +35,33 @@ const adicionarCategoriaController = async (req, res) => {
     }
 }
 
-export { categoriaController, adicionarCategoriaController }
+const atualizarCategoriaController = async (req, res) => {
+    try {
+        const categoriaId = req.params.id;
+        const { nome, tipo } = req.body;
+        const categoriaData = {
+            nome: nome,
+            tipo: tipo
+        };
+        await atualizarCategoria(categoriaId, categoriaData);
+        res.status(200).json({ message: 'Categoria atualizada com sucesso!', categoriaId })
+
+    } catch (err) {
+        console.error('Erro ao atualizar a categoria', err)
+        res.status(500).json({ message: 'Erro ao atualizar a categoria: ', err })
+    }
+
+}
+
+const excluirCategoriaController = async(req, res) => {
+    try {
+        const categoriaId = req.params.id;
+        await excluirCategoria (categoriaId)
+        res.status(200).json({message: 'Categoria excluida com sucesso!', categoriaId})
+    } catch (err) {
+        console.error('Erro ao excluir categoria', err)
+        res.status(500).json({message: 'Erro ao excluir categoria', err})
+    }
+}
+
+export { categoriaController, adicionarCategoriaController, atualizarCategoriaController, excluirCategoriaController }
