@@ -1,20 +1,18 @@
 "use client"
+
 import { useEffect, useState } from "react";
+
+function disconnect() {
+  localStorage.removeItem('token')
+  window.location.href = '/'
+}
+
 export default function Autenticado() {
-  const [usuario, setUsuario] = useState(null);
-  const [carregando, setCarregando] = useState(true);
+  const [usuario, setUsuario] = useState([]);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-
-    if (!token) {
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 2000);
-      return;
-    }
-
-    setCarregando(true);
 
     fetch('http://localhost:3001/usuario/autenticado', {
       method: 'GET',
@@ -30,30 +28,26 @@ export default function Autenticado() {
       })
       .then(data => {
         setUsuario(data);
-        setCarregando(false);
+
       })
       .catch(err => {
         console.error('Erro:', err);
-        setTimeout(() => {
-          window.location.href = '/'
-        }, 2000);
+        window.location.href = '/login'
       });
   }, []);
 
-  if (carregando) {
-    return <div>Carregando...</div>;
-  }
-
-  if (!usuario) {
-    return <div>Não foi possível carregar os dados do usuário</div>;
-  }
   console.log(usuario)
 
   return (
     <div>
       <h1>Bem-vindo!</h1>
       <p>Email: {usuario.email}</p>
-      {usuario.nome && <p>Nome: {usuario.nome}</p>}
+      <p>Nome: {usuario.nome}</p>
+      <p>id: {usuario.id}</p>
+      <p>criado_em: {usuario.criado_em}</p>
+
+      <span className="bg-blue-200 m-2 font-black text-black cursor-pointer" onClick={disconnect}>Desconectar</span>
+      <a className="bg-blue-200 m-2 font-black text-black cursor-pointer" href="/autenticado/financas">Finanças</a>
     </div>
   );
 }

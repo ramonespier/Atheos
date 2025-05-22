@@ -48,7 +48,7 @@ export default function Home() {
           // redirecionamento após login
           setTimeout(() => {
             window.location.href = '/autenticado';
-          }, 2000);
+          }, 600); 
         }
 
         // limpar formulário após cadastro

@@ -124,4 +124,126 @@ VALUES
   ('Limite Alimentação Maio', 600.00, 5, 2025, '1', '2'),
   ('Meta Transporte Maio', 200.00, 5, 2025, '1', '3');
 
+
+  ############################################### VIEWS ##################################################################
+
+-- USUARIO + CATEGORA
+
+CREATE VIEW view_categorias_por_usuario AS
+SELECT c.id AS categoria_id,
+		c.nome AS categoria_nome,
+		c.tipo AS categoria_tipo,
+		c.ultima_movimentacao,
+		u.id AS usuario_id,
+		u.nome AS usuario_nome,
+		u.email AS usuario_email
+FROM categorias c
+JOIN usuarios u ON c.usuario_id = u.id
+ORDER BY u.id, c.tipo, c.nome;
+
+-- USUARIO + META
+
+CREATE VIEW view_metas_por_usuario AS
+SELECT 
+    m.id AS meta_id,
+    m.nome AS meta_nome,
+    m.valor_limite,
+    m.mes,
+    m.ano,
+    m.criado_em,
+    m.atualizado_em,
+    
+    -- Dados do usuário
+    u.id AS usuario_id,
+    u.nome AS usuario_nome,
+    u.email AS usuario_email,
+    
+    -- Dados da categoria (se existir)
+    c.id AS categoria_id,
+    c.nome AS categoria_nome,
+    c.tipo AS categoria_tipo,
+    
+    -- Campo calculado: descrição do período (ex: "Janeiro/2024")
+    CONCAT(
+        CASE m.mes
+            WHEN 1 THEN 'Janeiro'
+            WHEN 2 THEN 'Fevereiro'
+            WHEN 3 THEN 'Março'
+            WHEN 4 THEN 'Abril'
+            WHEN 5 THEN 'Maio'
+            WHEN 6 THEN 'Junho'
+            WHEN 7 THEN 'Julho'
+            WHEN 8 THEN 'Agosto'
+            WHEN 9 THEN 'Setembro'
+            WHEN 10 THEN 'Outubro'
+            WHEN 11 THEN 'Novembro'
+            WHEN 12 THEN 'Dezembro'
+        END,
+        '/',
+        m.ano
+    ) AS periodo_descricao,
+    
+    -- campo calculado: progresso (seria atualizado por aplicação)
+    0 AS progresso_atual  -- Placeholder para ser atualizado pela aplicação
+
+FROM 
+    metas m
+INNER JOIN 
+    usuarios u ON m.usuario_id = u.id
+LEFT JOIN 
+    categorias c ON m.categoria_id = c.id
+ORDER BY 
+    u.nome, m.ano DESC, m.mes DESC, m.nome;
+
+  -- USUARIO + META
+
+CREATE VIEW view_transacoes_por_usuario AS
+SELECT 
+    t.id AS transacao_id,
+    t.tipo,
+    t.valor,
+    t.data,
+    t.descricao,
+    t.transferido_em,
+    
+    -- Formata o valor com sinal (+ para entrada, - para saída)
+    CONCAT(
+        CASE WHEN t.tipo = 'entrada' THEN '+' ELSE '-' END,
+        ' R$ ', 
+        FORMAT(t.valor, 2, 'pt_BR')
+    ) AS valor_formatado,
+    
+    -- Dados do usuário
+    u.id AS usuario_id,
+    u.nome AS usuario_nome,
+    u.email AS usuario_email,
+    
+    -- Dados da categoria (se existir)
+    c.id AS categoria_id,
+    c.nome AS categoria_nome,
+    c.tipo AS categoria_tipo,
+    
+    -- Campos calculados para facilitar relatórios
+    YEAR(t.data) AS ano,
+    MONTH(t.data) AS mes,
+    DAY(t.data) AS dia,
+    
+    -- Nome do mês por extenso
+    MONTHNAME(t.data) AS mes_nome,
+    
+    -- Dia da semana
+    DAYNAME(t.data) AS dia_semana
+
+FROM 
+    transacoes t
+
+INNER JOIN 
+    usuarios u ON t.usuario_id = u.id
+
+LEFT JOIN 
+    categorias c ON t.categoria_id = c.id
+
+ORDER BY 
+    t.data DESC, u.nome;
+
 ~~~
