@@ -6,35 +6,31 @@
 ### Back-End
 - Node.js
 - Express
-- Sequelize (ORM)
-- MySQL/PostgreSQL
+- MySQL
 
 ### Front-End
 - Next.js
 - React.js
 - Chart.js
 - TailwindCSS
-- Axios
 
 ---
 
 ## ⚙️ Como Rodar o Projeto
 
 ### Pré-requisitos
-- Node.js (v18+)
-- npm ou yarn
-- MySQL/PostgreSQL
+- Node.js (v20.14.0+)
+- npm
+- MySQL
 - Git
 
 ### Instalação
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/atheos.git
-cd atheos
+git clone https://github.com/FantaUva350ml/Atheos.git
 
-# Instale as dependências
-cd Back
+# Instale as dependências e módulos
 npm install
 
 cd ../Front
