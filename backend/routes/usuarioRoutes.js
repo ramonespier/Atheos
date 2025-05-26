@@ -10,13 +10,11 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router()
 
 router.post('/cadastro', cadastrarUsuarioController)
-
 router.post('/login', loginController)
-
 router.get('/autenticado', authMiddleware, getUsuarioLogado)
 
-router.get('/extratos', authMiddleware, categoriaController, transacaoController)
-router.post('/extratos', authMiddleware, adicionarCategoriaController, adicionarTransacaoController)
+router.get('/extratos', authMiddleware, transacaoController)
+router.post('/extratos', authMiddleware, adicionarTransacaoController)
 router.put('/extratos/:id', authMiddleware, atualizarCategoriaController, atualizarTransacaoController)
 router.delete('/extratos/:id', authMiddleware, excluirCategoriaController, excluirTransacaoController)
 
@@ -26,7 +24,7 @@ router.put('/metas/:id', authMiddleware, atualizarCategoriaController, atualizar
 router.delete('/metas/:id', authMiddleware, excluirCategoriaController, excluirMetasController)
 
 router.options('/', (req, res) => {
-    res.setHeader('Allow', 'GET, POST, OPTIONS')
+    res.setHeader('Allow', 'GET, POST, PUT, DELETE, OPTIONS')
     res.status(204).send()
 })
 

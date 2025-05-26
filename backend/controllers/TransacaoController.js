@@ -3,7 +3,7 @@ import { adicionarTransacao, atualizarTransacao, excluirTransacao } from "../mod
 
 const transacaoController = async (req, res) => {
     try {
-        const transacao = await readAll('view_transacoes_por_usuario', `usuario_id = ${req.usurioId}`)
+        const transacao = await readAll('view_transacoes', `usuario_id = ${req.usuarioId}`)
 
         if (!transacao) {
             return res.status(404).json({ message: 'Transação não encontrada para este usuário' })
@@ -24,10 +24,10 @@ const adicionarTransacaoController = async (req, res) => {
             tipo: tipo,
             valor: valor,
             descricao: descricao,
-            usurio_id: req.usuarioId
+            usuario_id: req.usuarioId
         };
 
-        const transacaoId = await adicionarTransacao(transacaoData);
+        await adicionarTransacao(transacaoData);
         res.status(201).json({ message: 'Transação adicionada com sucesso!' })
     } catch (err) {
         console.error('Erro ao adicionar transação', err)
