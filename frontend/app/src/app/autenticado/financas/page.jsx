@@ -21,20 +21,20 @@ export default function Financas() {
                 'Content-Type': 'application/json'
             }
         })
-            .then(res => {
-                console.log('Status da resposta: ', res.status)
-                if (!res.ok) throw new Error('Falha na autenticação');
-                return res.json();
-            })
-            .then(data => {
-                setUsuario(data);
-
-            })
-            .catch(err => {
-                console.error('Erro:', err);
-                window.location.href = '/login'
-            });
-    }, []);
+          .then(res => {
+            console.log('Status da resposta: ', res.status)
+            if (!res.ok) throw new Error('Falha na autenticação');
+            return res.json();
+          })
+          .then(data => {
+            setUsuario(data);
+    
+          })
+          .catch(err => {
+            console.error('Erro:', err);
+            window.location.href = '/login'
+          });
+      }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
