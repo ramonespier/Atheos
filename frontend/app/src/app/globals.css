@@ -5,13 +5,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #1d293d;
@@ -21,21 +14,21 @@
 
 @font-face {
   font-family: 'GREGO';
-  src: url('../../public/Fonts/DOMISC__.TTF') format('truetype');
+  src: url('/Fonts/DOMISC__.TTF') format('truetype');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'greguinho';
-  src: url('../../public/Fonts/DOMINICA.TTF') format('truetype');
+  src: url('/Fonts/DOMINICA.TTF') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'grego';
-  src: url('../../public/Fonts/DOMII___.TTF') format('truetype');
+  src: url('/Fonts/DOMII___.TTF') format('truetype');
   font-weight: 400;
   font-style: italic;
 }
@@ -43,5 +36,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: grego,greguinho,GREGO;
+  font-family: 'grego', 'greguinho', 'GREGO', sans-serif;
 }

@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
-  const [isLogin, setIsLogin] = useState(true); // alternar entre login e cadastro
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     senha: '',
-    nome: '' // para cadastro
+    nome: ''
   });
   const [mensagem, setMensagem] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +29,7 @@ export default function Home() {
 
     try {
       const endpoint = isLogin ? '/usuario/login' : '/usuario/cadastro';
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`${backendUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,16 +43,12 @@ export default function Home() {
         setMensagem(isLogin ? 'Login realizado com sucesso!' : 'Cadastro realizado com sucesso!');
 
         if (isLogin && data.token) {
-          localStorage.setItem('token', data.token); //  armazena o token JWT
-          console.log('Token armazenado:', data.token);
-
-          // redirecionamento após login
+          localStorage.setItem('token', data.token);
           setTimeout(() => {
-            window.location.href = '/dashboard'; //link para o dash
+            window.location.href = '/dashboard';
           }, 600); 
         }
 
-        // limpar formulário após cadastro
         if (!isLogin) {
           setFormData({
             email: '',
@@ -59,11 +56,9 @@ export default function Home() {
             nome: ''
           });
         }
-
       } else {
         setMensagem(data.err || `Erro no ${isLogin ? 'login' : 'cadastro'}`);
       }
-      console.log(response)
     } catch (err) {
       console.error('Erro na requisição:', err);
       setMensagem('Erro na comunicação com o servidor.');

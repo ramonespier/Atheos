@@ -9,7 +9,6 @@ export default function Home() {
       <HeaderHome />
       <SecaoApresentacao />
       <Informacoes />
-      
     </div>
   )
 }
