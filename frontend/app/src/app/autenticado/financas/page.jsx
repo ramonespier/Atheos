@@ -13,28 +13,28 @@ export default function Financas() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         console.log(token)
-    
-        fetch(`http://${backendUrl}/usuario/autenticado`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+
+        fetch(`${backendUrl}/usuario/autenticado`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         })
-          .then(res => {
-            console.log('Status da resposta: ', res.status)
-            if (!res.ok) throw new Error('Falha na autenticação');
-            return res.json();
-          })
-          .then(data => {
-            setUsuario(data);
-    
-          })
-          .catch(err => {
-            console.error('Erro:', err);
-            window.location.href = '/login'
-          });
-      }, []);
+            .then(res => {
+                console.log('Status da resposta: ', res.status)
+                if (!res.ok) throw new Error('Falha na autenticação');
+                return res.json();
+            })
+            .then(data => {
+                setUsuario(data);
+
+            })
+            .catch(err => {
+                console.error('Erro:', err);
+                window.location.href = '/login'
+            });
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -75,16 +75,23 @@ export default function Financas() {
 
     return (
         <div>
-            {usuario.map(view => (
-                <div key={view.id}
-                    className="m-5 border">
-                    {view.valor || 'Sem valor'} <br />
-                    {view.tipo || 'Sem tipo'} <br />
-                    {view.descricao || 'Sem descrição'} <br />
-                    {view.data || 'Sem data'} <br />
-                    {view.usuario_id || 'Sem id'}
-                </div>
-            ))}
+
+            {/* Verificação em 3 etapas seguras: */}
+            {Array.isArray(usuario) && usuario.length > 0 ? (
+                usuario.map(view => (
+                    <div key={view.id || Date.now()} className="m-5 border p-3">
+                        {/* Renderização segura com fallbacks: */}
+                        <p>Valor: {view.valor ?? 'Sem valor'}</p>
+                        <p>Tipo: {view.tipo ?? 'Sem tipo'}</p>
+                        <p>Descrição: {view.descricao ?? 'Sem descrição'}</p>
+                        <p>Data: {view.data ?? 'Sem data'}</p>
+                        <p>ID: {view.usuario_id ?? 'Sem ID'}</p>
+                    </div>
+                ))
+            ) : (
+                <div className="m-5 p-3 border">Nenhum dado disponível</div>
+            )}
+
 
             <form onSubmit={handleSubmit}>
                 <label htmlFor="nome">Nome:</label>

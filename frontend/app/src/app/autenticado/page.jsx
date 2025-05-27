@@ -16,7 +16,7 @@ export default function Autenticado() {
     const token = localStorage.getItem('token');
     console.log(token)
 
-    fetch(`http://${backendUrl}/usuario/autenticado`, {
+    fetch(`${backendUrl}/usuario/autenticado`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
