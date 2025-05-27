@@ -21,8 +21,8 @@ export default function SecaoApresentacao() {
                     <a href="/login">Inicie sua Jornada Divinia</a>
                 </button>
 
-                <div className="rounded-full size-80">
-                    <img src="/PackAtheos/7.png" alt="Moeda Atheos" />
+                <div className="rounded-full size-200">
+                    <img src="/ImgOlimpo/olimpo.jpg" alt="Moeda Atheos" />
                 </div>
             </div>
 
