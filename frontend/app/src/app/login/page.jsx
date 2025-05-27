@@ -73,177 +73,95 @@ export default function Home() {
   };
 
   return (
-    
-    <div className="flex items-center justify-center w-screen h-screen">
-    <Head>
-      <title>{isLogin ? 'Login' : 'Cadastro'}</title>
-    </Head>
+  
+<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1c2c] via-[#2e2c54] to-[#1a1c2c] bg-cover bg-center px-4">
+  <Head>
+    <title>{isLogin ? 'Login' : 'Cadastro'}</title>
+  </Head>
 
-    <div className="text-center bg-gradient-to-r from-blue-500 via-black to-blue-100 h-80 p-2">
-      <div className="flex flex-col ">
-        <div className="py-1">
-          🏛️
-        </div>
-        <h1 className="py-1">Portal dos Deuses</h1>
-        <p className="py-1">Insira suas credenciais divinas para acessar seu reino financeiro.</p>
-      </div>
+  <div className="bg-[#1e1f2b] border border-indigo-900 rounded-2xl shadow-2xl p-8 w-full max-w-md backdrop-blur-md text-gray-100">
+    <div className="flex flex-col items-center gap-3 mb-6">
+      <div className="text-indigo-400 text-5xl">🏛️</div>
+      <h1 className="text-2xl font-bold uppercase tracking-wide">
+        Portal dos Deuses
+      </h1>
+      <p className="text-sm text-gray-400 text-center">
+        Insira suas credenciais divinas para acessar seu reino financeiro.
+      </p>
+    </div>
 
-      <form onSubmit={handleSubmit} className="">
-        {!isLogin && (
-          <div>
-            <label className="">Nome</label>
-            <input
-              type="text"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              required
-              placeholder="Seu nome completo"
-              className=""
-            />
-          </div>
-        )}
-
+    <form onSubmit={handleSubmit} className="space-y-5 text-left">
+      {!isLogin && (
         <div>
-          <label className="">Email dos Deuses</label>
+          <label className="block text-sm font-semibold text-gray-300">Nome</label>
           <input
-            type="email"
-            name="email"
-            value={formData.email}
+            type="text"
+            name="nome"
+            value={formData.nome}
             onChange={handleChange}
             required
-            placeholder="seuemail@olympus.com"
-            className=""
+            placeholder="Seu nome completo"
+            className="mt-1 w-full px-4 py-2 bg-[#2c2d3c] border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
-        </div>
-
-        <div>
-          <label className="">Senha Secreta do Oráculo</label>
-          <input
-            type="password"
-            name="senha"
-            value={formData.senha}
-            onChange={handleChange}
-            required
-            placeholder="********"
-            className=""
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className=""
-        >
-          {isLoading ? 'Processando...' : (isLogin ? 'Entrar no Olimpo' : 'Criar Altar Divino')}
-        </button>
-      </form>
-
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={() => setIsLogin(!isLogin)}
-          className=""
-        >
-          {isLogin ? 'Não tem uma conta? Crie seu altar financeiro!' : 'Já tem uma conta? Acesse o Olimpo!'}
-        </button>
-      </div>
-
-      {mensagem && (
-        <div className={`mt-4 p-2 text-sm rounded-md ${mensagem.includes('sucesso') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {mensagem}
         </div>
       )}
-    </div>
-  </div>
 
+      <div>
+        <label className="block text-sm font-semibold text-gray-300">Email dos Deuses</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          placeholder="seuemail@olympus.com"
+          className="mt-1 w-full px-4 py-2 bg-[#2c2d3c] border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-300">Senha Secreta do Oráculo</label>
+        <input
+          type="password"
+          name="senha"
+          value={formData.senha}
+          onChange={handleChange}
+          required
+          placeholder="********"
+          className="mt-1 w-full px-4 py-2 bg-[#2c2d3c] border border-gray-600 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-gradient-to-r from-indigo-700 via-indigo-500 to-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:opacity-90 transition duration-300 disabled:opacity-60"
+      >
+        {isLoading ? 'Processando...' : (isLogin ? 'Entrar no Olimpo' : 'Criar Altar Divino')}
+      </button>
+    </form>
+
+    <div className="mt-6 text-center">
+      <button
+        type="button"
+        onClick={() => setIsLogin(!isLogin)}
+        className="text-indigo-400 text-sm font-medium hover:underline transition"
+      >
+        {isLogin ? 'Não tem uma conta? Crie seu altar financeiro!' : 'Já tem uma conta? Acesse o Olimpo!'}
+      </button>
+    </div>
+
+    {mensagem && (
+      <div className={`mt-5 p-3 text-sm rounded-lg font-medium ${
+        mensagem.includes('sucesso')
+          ? 'bg-green-200/10 text-green-400 border border-green-400/50'
+          : 'bg-red-200/10 text-red-400 border border-red-400/50'
+      }`}>
+        {mensagem}
+      </div>
+    )}
+  </div>
+</div>
 
   );
 }
-
-
-
-
-
-// <div className="min-h-screen flex items-center justify-center bg-[#fefaf6] bg-[url('/pattern.svg')]">
-//     <Head>
-//       <title>{isLogin ? 'Login' : 'Cadastro'}</title>
-//     </Head>
-
-//     <div className="bg-[#fffaf4] border border-orange-200 rounded-xl shadow-md p-8 w-full max-w-md text-center">
-//       <div className="flex flex-col items-center gap-3 mb-4">
-//         <div className="text-orange-600 text-4xl">
-//           🏛️
-//         </div>
-//         <h1 className="text-xl font-bold text-gray-800 uppercase">Portal dos Deuses</h1>
-//         <p className="text-sm text-gray-600">Insira suas credenciais divinas para acessar seu reino financeiro.</p>
-//       </div>
-
-//       <form onSubmit={handleSubmit} className="space-y-4 text-left">
-//         {!isLogin && (
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700">Nome</label>
-//             <input
-//               type="text"
-//               name="nome"
-//               value={formData.nome}
-//               onChange={handleChange}
-//               required
-//               placeholder="Seu nome completo"
-//               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-400 focus:border-orange-400"
-//             />
-//           </div>
-//         )}
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Email dos Deuses</label>
-//           <input
-//             type="email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             required
-//             placeholder="seuemail@olympus.com"
-//             className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-400 focus:border-orange-400"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Senha Secreta do Oráculo</label>
-//           <input
-//             type="password"
-//             name="senha"
-//             value={formData.senha}
-//             onChange={handleChange}
-//             required
-//             placeholder="********"
-//             className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-400 focus:border-orange-400"
-//           />
-//         </div>
-
-//         <button
-//           type="submit"
-//           disabled={isLoading}
-//           className="w-full bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold py-2 px-4 rounded-md hover:opacity-90 transition duration-200"
-//         >
-//           {isLoading ? 'Processando...' : (isLogin ? 'Entrar no Olimpo' : 'Criar Altar Divino')}
-//         </button>
-//       </form>
-
-//       <div className="mt-4">
-//         <button
-//           type="button"
-//           onClick={() => setIsLogin(!isLogin)}
-//           className="text-orange-600 text-sm hover:underline"
-//         >
-//           {isLogin ? 'Não tem uma conta? Crie seu altar financeiro!' : 'Já tem uma conta? Acesse o Olimpo!'}
-//         </button>
-//       </div>
-
-//       {mensagem && (
-//         <div className={`mt-4 p-2 text-sm rounded-md ${mensagem.includes('sucesso') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-//           {mensagem}
-//         </div>
-//       )}
-//     </div>
-//   </div>
