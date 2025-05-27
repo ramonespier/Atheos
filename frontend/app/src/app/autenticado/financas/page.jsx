@@ -6,34 +6,35 @@ import { useEffect, useState } from "react";
 
 export default function Financas() {
     const [usuario, setUsuario] = useState([]);
+    const [transferencia, setTransferencia] = useState(null)
+    const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
 
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-
-        fetch('http://localhost:3001/usuario/extratos', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        console.log(token)
+    
+        fetch(`http://${backendUrl}/usuario/autenticado`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         })
-            .then(res => {
-                console.log('Status da resposta: ', res.status)
-                if (!res.ok) throw new Error('Falha na autenticação');
-                return res.json();
-            })
-            .then(data => {
-                console.log('Dados recebidos: ', data)
-                setUsuario(data);
-            })
-            .catch(err => {
-                console.error('Erro:', err);
-                setTimeout(() => {
-                    window.location.href = '/login'
-                }, 600);
-            })
-    }, [])
+          .then(res => {
+            console.log('Status da resposta: ', res.status)
+            if (!res.ok) throw new Error('Falha na autenticação');
+            return res.json();
+          })
+          .then(data => {
+            setUsuario(data);
+    
+          })
+          .catch(err => {
+            console.error('Erro:', err);
+            window.location.href = '/login'
+          });
+      }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -41,7 +42,7 @@ export default function Financas() {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch('http://localhost:3001/usuario/extratos', {
+            const response = await fetch(`${backendUrl}/usuario/extratos`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -50,6 +51,7 @@ export default function Financas() {
                 body: JSON.stringify(Object.fromEntries(formData))
             });
             const data = await response.json();
+            setTransferencia(data);
             // Atualize o estado ou mostre a resposta
         } catch (error) {
             console.error('Erro:', error);
@@ -57,14 +59,19 @@ export default function Financas() {
     };
 
 
-
     // SE QUISER SPLASH SCREEN ↓↓↓↓↓↓
 
-    if (!usuario) { 
+    if (!usuario) {
         return (
             <div>Carregando. . .</div>
         )
     }
+
+    // if (!transferencia) { 
+    //     return (
+    //         <div>Carregando. . .</div>
+    //     )
+    // }
 
     return (
         <div>
@@ -95,7 +102,7 @@ export default function Financas() {
                 <label htmlFor="descricao"></label>
                 <textarea name="descricao" id="descricao"></textarea>
 
-                <button type="submit">Criar categoria</button>
+                <button type="submit">Adicionar transferência</button>
 
             </form>
 

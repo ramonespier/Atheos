@@ -44,6 +44,7 @@ export default function Home() {
 
         if (isLogin && data.token) {
           localStorage.setItem('token', data.token);
+          console.log(data.token)
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 600); 
@@ -66,6 +67,7 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">

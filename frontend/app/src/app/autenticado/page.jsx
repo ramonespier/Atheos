@@ -9,12 +9,14 @@ function disconnect() {
 
 export default function Autenticado() {
   const [usuario, setUsuario] = useState([]);
+  const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log(token)
 
-    fetch('http://localhost:3001/usuario/autenticado', {
+    fetch(`http://${backendUrl}/usuario/autenticado`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
