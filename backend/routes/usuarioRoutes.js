@@ -13,15 +13,15 @@ router.post('/cadastro', cadastrarUsuarioController)
 router.post('/login', loginController)
 router.get('/autenticado', authMiddleware, getUsuarioLogado)
 
-router.get('/extratos', authMiddleware, transacaoController)
-router.post('/extratos', authMiddleware, adicionarTransacaoController)
-router.put('/extratos/:id', authMiddleware, atualizarCategoriaController, atualizarTransacaoController)
-router.delete('/extratos/:id', authMiddleware, excluirCategoriaController, excluirTransacaoController)
+router.get('/dashboard/extratos', authMiddleware, transacaoController)
+router.post('/dashboard/extratos', authMiddleware, adicionarTransacaoController)
+router.put('/dashboard/extratos/:id', authMiddleware, atualizarCategoriaController, atualizarTransacaoController)
+router.delete('/dashboard/extratos/:id', authMiddleware, excluirCategoriaController, excluirTransacaoController)
 
-router.get('/metas', authMiddleware, categoriaController, metaController)
-router.post('/metas', authMiddleware, adicionarCategoriaController, adicionarMetasController)
-router.put('/metas/:id', authMiddleware, atualizarCategoriaController, atualizarMetasController)
-router.delete('/metas/:id', authMiddleware, excluirCategoriaController, excluirMetasController)
+router.get('/dashboard/metas', authMiddleware, categoriaController, metaController)
+router.post('/dashboard/metas', authMiddleware, adicionarCategoriaController, adicionarMetasController)
+router.put('/dashboard/metas/:id', authMiddleware, atualizarCategoriaController, atualizarMetasController)
+router.delete('/dashboard/metas/:id', authMiddleware, excluirCategoriaController, excluirMetasController)
 
 router.options('/', (req, res) => {
     res.setHeader('Allow', 'GET, POST, PUT, DELETE, OPTIONS')

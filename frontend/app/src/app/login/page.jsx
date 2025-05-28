@@ -82,7 +82,7 @@ export default function Home() {
       <h1 className="text-2xl font-bold uppercase tracking-wide">
         Portal dos Deuses
       </h1>
-      <p className="text-sm text-gray-400 text-center">
+      <p className="text-sm text-gray-400 text-center tracking-wide">
         Insira suas credenciais divinas para acessar seu reino financeiro.
       </p>
     </div>
@@ -90,7 +90,7 @@ export default function Home() {
     <form onSubmit={handleSubmit} className="space-y-5 text-left">
       {!isLogin && (
         <div>
-          <label className="block text-sm font-semibold text-gray-300">Nome</label>
+          <label className="block text-sm font-semibold  text-gray-300">Nome</label>
           <input
             type="text"
             name="nome"
