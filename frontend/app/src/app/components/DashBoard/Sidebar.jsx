@@ -1,12 +1,13 @@
+import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTachometerAlt, faExchangeAlt, faBullseye, faCog } from '@fortawesome/free-solid-svg-icons'
 
 export default function Sidebar() {
   const menuItems = [
-    { label: 'Dashboard', icon: faTachometerAlt },
-    { label: 'Transações', icon: faExchangeAlt },
-    { label: 'Metas', icon: faBullseye },
-    { label: 'Configurações', icon: faCog },
+    { label: 'Dashboard', icon: faTachometerAlt, href: '/dashboard' },
+    { label: 'Transações', icon: faExchangeAlt, href: '/dashboard/extratos' },
+    { label: 'Metas', icon: faBullseye, href: '/dashboard/metas' },
+    { label: 'Configurações', icon: faCog, href: '/dashboard/config' },
   ]
 
   return (
@@ -34,31 +35,29 @@ export default function Sidebar() {
         </h1>
 
         <nav className="flex flex-col gap-4" aria-label="Menu de navegação">
-          {menuItems.map(({ label, icon }) => (
-            <a
+          {menuItems.map(({ label, icon, href }) => (
+            <Link
               key={label}
-              href="#"
+              href={href}
               className="
-                flex items-center gap-2 text-base font-medium
-                rounded-md px-2 py-2
-                hover:text-yellow-400 hover:bg-yellow-900/20
-                focus:outline-none focus:ring-2 focus:ring-yellow-400
-                transition-colors duration-200
-                select-none group
-              "
-              tabIndex={0}
-              role="link"
+        flex items-center gap-2 text-base font-medium
+        rounded-md px-2 py-2
+        hover:text-yellow-400 hover:bg-yellow-900/20
+        focus:outline-none focus:ring-2 focus:ring-yellow-400
+        transition-colors duration-200
+        select-none group
+      "
               aria-label={`Ir para ${label}`}
             >
               <FontAwesomeIcon
                 icon={icon}
                 className="
-                  text-yellow-400 w-4 h-4 shrink-0
-                  group-hover:scale-110 group-hover:text-yellow-300 transition-transform duration-200
-                "
+          text-yellow-400 w-4 h-4 shrink-0
+          group-hover:scale-110 group-hover:text-yellow-300 transition-transform duration-200
+        "
               />
               <span className="group-hover:underline">{label}</span>
-            </a>
+            </Link>
           ))}
         </nav>
       </div>
