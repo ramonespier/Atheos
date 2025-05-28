@@ -10,14 +10,14 @@ export default function Extratos() {
   const [transferencias, setTransferencias] = useState([]); // Alterado para array
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
+
 
   // Carrega as transferências ao montar o componente
   const fetchTransferencias = async () => {
     const token = localStorage.getItem('token');
     try {
       setIsLoading(true);
-      const response = await fetch(`${backendUrl}/usuario/dashboard/extratos`, {
+      const response = await fetch(`http://localhost:3001/usuario/dashboard/extratos`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,7 +40,7 @@ export default function Extratos() {
     const token = localStorage.getItem('token');
     
     // Carrega dados do usuário
-    fetch(`${backendUrl}/usuario/autenticado`, {
+    fetch(`http://localhost:3001/usuario/autenticado`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -69,7 +69,7 @@ export default function Extratos() {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${backendUrl}/usuario/dashboard/extratos`, {
+      const response = await fetch(`http://localhost:3001/usuario/dashboard/extratos`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

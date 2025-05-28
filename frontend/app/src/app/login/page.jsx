@@ -14,7 +14,6 @@ export default function Home() {
   const [mensagem, setMensagem] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const backendUrl = `http://${typeof window !== "undefined" ? window.location.hostname : "localhost"}:3001`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +30,7 @@ export default function Home() {
 
     try {
       const endpoint = isLogin ? "/usuario/login" : "/usuario/cadastro";
-      const response = await fetch(`${backendUrl}${endpoint}`, {
+      const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -7,14 +7,14 @@ import { useEffect, useState } from "react";
 export default function Financas() {
     const [usuario, setUsuario] = useState([]);
     const [transferencia, setTransferencia] = useState(null)
-    const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
+
 
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         console.log(token)
 
-        fetch(`${backendUrl}/usuario/autenticado`, {
+        fetch(`http://localhost:3001/usuario/autenticado`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -42,7 +42,7 @@ export default function Financas() {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch(`${backendUrl}/usuario/extratos`, {
+            const response = await fetch(`http://localhost:3001/usuario/extratos`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
