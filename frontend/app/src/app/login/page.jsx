@@ -46,7 +46,10 @@ export default function Home() {
         setMensagem(isLogin ? "Login realizado com sucesso!" : "Cadastro realizado com sucesso!");
 
         if (isLogin && data.token) {
-          localStorage.setItem("token", data.token);
+
+          localStorage.setItem('token', data.token);
+          console.log(data.token)
+
           setTimeout(() => {
             window.location.href = "/dashboard";
           }, 600);
@@ -69,6 +72,7 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
@@ -216,6 +220,20 @@ export default function Home() {
           @apply w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
         }
       `}</style>
+
     </div>
+
+    {mensagem && (
+      <div className={`mt-5 p-3 text-sm rounded-lg font-medium ${
+        mensagem.includes('sucesso')
+          ? 'bg-green-200/10 text-green-400 border border-green-400/50'
+          : 'bg-red-200/10 text-red-400 border border-red-400/50'
+      }`}>
+        {mensagem}
+      </div>
+    )}
+  </div>
+</div>
+
   );
 }

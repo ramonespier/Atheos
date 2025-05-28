@@ -69,21 +69,7 @@ INSERT INTO usuarios (nome, email, senha) VALUES
 ('Jurema Santista', 'jurema@email.com', '44455'),
 ('Ruan Robert', 'ruan@email.com', '88888');
 
-INSERT INTO categorias (nome, tipo, usuario_id)
-VALUES 
-  ('Salário', 'entrada', '8'),
-  ('Alimentação', 'saida', '6'),
-  ('Transporte', 'saida', '8'),
-  ('Freelance', 'entrada', '6'),
-  ('Lazer', 'saida', '6'),
-  ('Educação', 'saida', '8'),
-  ('Investimentos', 'saida', '6'),
-  ('Saúde', 'saida', '6'),
-  ('Outros Ganhos', 'entrada', '6'),
-  ('Doações', 'saida', '8');
-
-
-INSERT INTO transacoes (tipo, valor, data, descricao, usuario_id, categoria_id)
+INSERT INTO transacoes (tipo, valor, data, descricao, usuario_id)
 VALUES 
   ('entrada', 3500.00, '2025-05-01', 'Salário de Maio', '1', '1'),
   ('saida', 75.50, '2025-05-03', 'Compra no mercado', '1', '2'),
@@ -97,7 +83,7 @@ VALUES
   ('saida', 20.00, '2025-05-17', 'Ajuda para um amigo', '1', '10');
 
 
-INSERT INTO metas (nome, valor_limite, mes, ano, usuario_id, categoria_id)
+INSERT INTO metas (nome, valor_limite, mes, ano, usuario_id)
 VALUES 
   ('Limite Alimentação Maio', 600.00, 5, 2025, '1', '2'),
   ('Meta Transporte Maio', 200.00, 5, 2025, '1', '3');
