@@ -11,7 +11,7 @@ export default function Financas() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch('http://localhost:3001/usuario/categoria', {
+        fetch('http://localhost:3001/usuario/extratos', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -41,7 +41,7 @@ export default function Financas() {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch('http://localhost:3001/usuario/categoria', {
+            const response = await fetch('http://localhost:3001/usuario/extratos', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -60,19 +60,21 @@ export default function Financas() {
 
     // SE QUISER SPLASH SCREEN ↓↓↓↓↓↓
 
-    // if (!usuario) { 
-    //     return (
-    //         <div>Carregando. . .</div>
-    //     )
-    // }
+    if (!usuario) { 
+        return (
+            <div>Carregando. . .</div>
+        )
+    }
 
     return (
         <div>
             {usuario.map(view => (
-                <div key={view.id ?? `cat-${view.categoria_nome}-${view.categoria_tipo}`}
+                <div key={view.id}
                     className="m-5 border">
-                    {view.categoria_nome || 'Sem nome'} <br />
-                    {view.categoria_tipo || 'Sem tipo'} <br />
+                    {view.valor || 'Sem valor'} <br />
+                    {view.tipo || 'Sem tipo'} <br />
+                    {view.descricao || 'Sem descrição'} <br />
+                    {view.data || 'Sem data'} <br />
                     {view.usuario_id || 'Sem id'}
                 </div>
             ))}
@@ -82,9 +84,19 @@ export default function Financas() {
                 <input type="text" id="nome" name="nome" required />
 
                 <label htmlFor="tipo">Tipo:</label>
-                <input type="text" id="tipo" name="tipo" required />
+                <select name="tipo" id="tipo">
+                    <option value="Entrada" key="Entrada">Entrada</option>
+                    <option value="Saída" key="Saída">Saída</option>
+                </select>
+
+                <label htmlFor="valor"></label>
+                <input type="number" name="valor" id="valor" />
+
+                <label htmlFor="descricao"></label>
+                <textarea name="descricao" id="descricao"></textarea>
 
                 <button type="submit">Criar categoria</button>
+
             </form>
 
             <div id="response">

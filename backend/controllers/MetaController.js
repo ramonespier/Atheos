@@ -3,7 +3,7 @@ import { adicionarMetas, atualizarMetas, excluirMetas } from "../models/Meta.js"
 
 const metaController = async (req, res) => {
     try {
-        const meta = await readAll ('view_metas_por_usuario', `usuario_id = ${req.usuarioId}`)
+        const meta = await readAll ('view_metas', `usuario_id = ${req.usuarioId}`)
 
         if (!meta) {
             return res.status(404).json({message: 'Meta não encontrada para este usuário'})
@@ -27,7 +27,7 @@ const adicionarMetasController = async (req, res) => {
             usuario_id: req.usuarioId
         }
         
-        const metaId = await adicionarMetas(metaData);
+        await adicionarMetas(metaData);
         res.status(201).json({message: 'Meta adicionada com sucesso!'})
     } catch (err) { 
         console.error('Erro ao adicionar meta' , err)
