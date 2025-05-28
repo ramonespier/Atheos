@@ -72,7 +72,7 @@ export default function Home() {
       setIsLoading(false);
     }
   };
-;
+  ;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
@@ -176,11 +176,10 @@ export default function Home() {
 
         {mensagem && (
           <div
-            className={`mt-4 p-3 text-xs rounded-lg font-medium ${
-              mensagem.includes("sucesso")
+            className={`mt-4 p-3 text-xs rounded-lg font-medium ${mensagem.includes("sucesso")
                 ? "bg-green-600/20 text-green-300"
                 : "bg-red-600/20 text-red-300"
-            }`}
+              }`}
           >
             {mensagem}
           </div>
@@ -196,9 +195,8 @@ export default function Home() {
             className="group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-transform duration-300 hover:rotate-90"
           >
             <FiArrowUp
-              className={`text-white text-xl transition-transform duration-300 ${
-                showAbinha ? "rotate-90" : "rotate-0"
-              }`}
+              className={`text-white text-xl transition-transform duration-300 ${showAbinha ? "rotate-90" : "rotate-0"
+                }`}
             />
           </button>
 
@@ -221,19 +219,18 @@ export default function Home() {
         }
       `}</style>
 
-    </div>
 
-    {mensagem && (
-      <div className={`mt-5 p-3 text-sm rounded-lg font-medium ${
-        mensagem.includes('sucesso')
-          ? 'bg-green-200/10 text-green-400 border border-green-400/50'
-          : 'bg-red-200/10 text-red-400 border border-red-400/50'
-      }`}>
-        {mensagem}
-      </div>
-    )}
-  </div>
-</div>
+      {mensagem && (
+        <div className={`mt-5 p-3 text-sm rounded-lg font-medium ${mensagem.includes('sucesso')
+            ? 'bg-green-200/10 text-green-400 border border-green-400/50'
+            : 'bg-red-200/10 text-red-400 border border-red-400/50'
+          }`}
+        >
+          {mensagem}
+        </div>
+      )}
+
+    </div>
 
   );
 }
