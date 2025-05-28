@@ -6,34 +6,35 @@ import { useEffect, useState } from "react";
 
 export default function Financas() {
     const [usuario, setUsuario] = useState([]);
+    const [transferencia, setTransferencia] = useState(null)
+    const backendUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
 
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        console.log(token)
 
-        fetch('http://localhost:3001/usuario/extratos', {
+        fetch(`${backendUrl}/usuario/autenticado`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         })
-            .then(res => {
-                console.log('Status da resposta: ', res.status)
-                if (!res.ok) throw new Error('Falha na autenticação');
-                return res.json();
-            })
-            .then(data => {
-                console.log('Dados recebidos: ', data)
-                setUsuario(data);
-            })
-            .catch(err => {
-                console.error('Erro:', err);
-                setTimeout(() => {
-                    window.location.href = '/login'
-                }, 600);
-            })
-    }, [])
+          .then(res => {
+            console.log('Status da resposta: ', res.status)
+            if (!res.ok) throw new Error('Falha na autenticação');
+            return res.json();
+          })
+          .then(data => {
+            setUsuario(data);
+    
+          })
+          .catch(err => {
+            console.error('Erro:', err);
+            window.location.href = '/login'
+          });
+      }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -41,7 +42,7 @@ export default function Financas() {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch('http://localhost:3001/usuario/extratos', {
+            const response = await fetch(`${backendUrl}/usuario/extratos`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -50,6 +51,7 @@ export default function Financas() {
                 body: JSON.stringify(Object.fromEntries(formData))
             });
             const data = await response.json();
+            setTransferencia(data);
             // Atualize o estado ou mostre a resposta
         } catch (error) {
             console.error('Erro:', error);
@@ -57,27 +59,39 @@ export default function Financas() {
     };
 
 
-
     // SE QUISER SPLASH SCREEN ↓↓↓↓↓↓
 
-    if (!usuario) { 
+    if (!usuario) {
         return (
             <div>Carregando. . .</div>
         )
     }
 
+    // if (!transferencia) { 
+    //     return (
+    //         <div>Carregando. . .</div>
+    //     )
+    // }
+
     return (
         <div>
-            {usuario.map(view => (
-                <div key={view.id}
-                    className="m-5 border">
-                    {view.valor || 'Sem valor'} <br />
-                    {view.tipo || 'Sem tipo'} <br />
-                    {view.descricao || 'Sem descrição'} <br />
-                    {view.data || 'Sem data'} <br />
-                    {view.usuario_id || 'Sem id'}
-                </div>
-            ))}
+
+            {/* Verificação em 3 etapas seguras: */}
+            {Array.isArray(usuario) && usuario.length > 0 ? (
+                usuario.map(view => (
+                    <div key={view.id || Date.now()} className="m-5 border p-3">
+                        {/* Renderização segura com fallbacks: */}
+                        <p>Valor: {view.valor ?? 'Sem valor'}</p>
+                        <p>Tipo: {view.tipo ?? 'Sem tipo'}</p>
+                        <p>Descrição: {view.descricao ?? 'Sem descrição'}</p>
+                        <p>Data: {view.data ?? 'Sem data'}</p>
+                        <p>ID: {view.usuario_id ?? 'Sem ID'}</p>
+                    </div>
+                ))
+            ) : (
+                <div className="m-5 p-3 border">Nenhum dado disponível</div>
+            )}
+
 
             <form onSubmit={handleSubmit}>
                 <label htmlFor="nome">Nome:</label>
@@ -95,7 +109,7 @@ export default function Financas() {
                 <label htmlFor="descricao"></label>
                 <textarea name="descricao" id="descricao"></textarea>
 
-                <button type="submit">Criar categoria</button>
+                <button type="submit">Adicionar transferência</button>
 
             </form>
 

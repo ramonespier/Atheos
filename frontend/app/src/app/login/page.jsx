@@ -44,6 +44,7 @@ export default function Home() {
 
         if (isLogin && data.token) {
           localStorage.setItem('token', data.token);
+          console.log(data.token)
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 600); 
@@ -66,6 +67,7 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+;
 
   return (
   
