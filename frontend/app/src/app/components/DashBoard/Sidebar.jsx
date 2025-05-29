@@ -20,7 +20,7 @@ export default function Sidebar() {
       <button
         onClick={() => setOpen(!open)}
         className="
-          md:hidden fixed top-4 left-4 z-50 p-3 rounded-lg
+          md:hidden fixed top-4 left-4 z-100 p-3 rounded-lg
           bg-yellow-600 text-black
           hover:bg-yellow-500
           transition-colors duration-300
@@ -42,7 +42,7 @@ export default function Sidebar() {
           w-64 min-h-screen p-6
           flex flex-col justify-between
           shadow-2xl shadow-black/90
-          fixed z-30 top-0 left-0
+          fixed z-80 top-0 left-0
           transition-transform duration-300 ease-in-out
           ${open ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0 md:static
