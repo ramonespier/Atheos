@@ -1,113 +1,99 @@
 "use client"
-
+import { useEffect, useState } from "react";
 import Sidebar from '../../components/DashBoard/Sidebar'
 import Header from '../../components/DashBoard/Header'
 import Footer from '../../components/DashBoard/Footer.jsx'
-import { useEffect, useState } from "react";
 
 export default function Extratos() {
-  const [usuario, setUsuario] = useState([]);
-  const [transferencias, setTransferencias] = useState([]); // Alterado para array
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Estados
+  const [usuario, setUsuario] = useState({});
+  const [transferencias, setTransferencias] = useState([]);
+  const [erro, setErro] = useState(null);
 
-
-  // Carrega as transferências ao montar o componente
-  const fetchTransferencias = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      setIsLoading(true);
-      const response = await fetch(`http://localhost:3001/usuario/dashboard/extratos`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) throw new Error('Falha ao carregar transferências');
-      
-      const data = await response.json();
-      setTransferencias(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Buscar dados do usuário
   useEffect(() => {
     const token = localStorage.getItem('token');
     
-    // Carrega dados do usuário
-    fetch(`http://localhost:3001/usuario/autenticado`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Falha na autenticação');
-        return res.json();
-      })
-      .then(data => {
-        setUsuario(data);
-        // Carrega transferências após autenticação
-        fetchTransferencias();
-      })
-      .catch(err => {
-        console.error('Erro:', err);
+    const buscarUsuario = async () => {
+      try {
+        const resposta = await fetch('http://localhost:3001/usuario/autenticado', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!resposta.ok) throw new Error('Não autenticado');
+        
+        const dadosUsuario = await resposta.json();
+        setUsuario(dadosUsuario);
+        buscarTransferencias();
+      } catch (error) {
+        setErro(error.message);
         window.location.href = '/login';
-      });
+      }
+    };
+
+    // Buscar transferências
+    const buscarTransferencias = async () => {
+      try {
+        const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!resposta.ok) throw new Error('Erro ao carregar transferências');
+        
+        const dadosTransferencias = await resposta.json();
+        setTransferencias(dadosTransferencias);
+      } catch (error) {
+        setErro(error.message);
+      }
+    };
+
+    buscarUsuario();
   }, []);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
+  // Adicionar nova transferência
+  const adicionarTransferencia = async (evento) => {
+    evento.preventDefault();
     const token = localStorage.getItem('token');
-
+    
     try {
-      setIsLoading(true);
-      const response = await fetch(`http://localhost:3001/usuario/dashboard/extratos`, {
+      const formData = new FormData(evento.target);
+      const dados = Object.fromEntries(formData);
+      
+      const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(Object.fromEntries(formData))
+        body: JSON.stringify(dados)
       });
       
-      if (!response.ok) throw new Error('Falha ao cadastrar transferência');
+      if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
       
-      const novaTransferencia = await response.json();
-      
-      // Atualiza a lista de transferências com a nova
-      setTransferencias(prev => [novaTransferencia, ...prev]);
-      
-      // Reseta o formulário
-      event.target.reset();
-      
+      const novaTransferencia = await resposta.json();
+      setTransferencias([novaTransferencia, ...transferencias]);
+      evento.target.reset();
     } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
+      setErro(error.message);
     }
   };
-
-  if (!usuario) {
-    return <div className="text-white p-4">Carregando...</div>;
-  }
 
   return (
     <div className="flex font-minhaFonte">
       <Sidebar />
+      
       <main className="flex-1 bg-[#121210] min-h-screen flex flex-col">
         <Header />
-
+        
         <div className="p-6 space-y-6">
-          {/* Formulário de Transferência */}
-          <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
+          {/* Formulário de Nova Transferência */}
+          <form onSubmit={adicionarTransferencia} className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nova Transferência</h2>
             
             <div className="mb-4">
@@ -158,10 +144,9 @@ export default function Extratos() {
 
             <button 
               type="submit" 
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-800"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
-              {isLoading ? 'Enviando...' : 'Adicionar Transferência'}
+              Adicionar Transferência
             </button>
           </form>
 
@@ -169,38 +154,39 @@ export default function Extratos() {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-4">Histórico de Transferências</h2>
             
-            {error && (
+            {erro && (
               <div className="bg-red-800 text-white p-3 rounded mb-4">
-                Erro: {error}
+                Erro: {erro}
               </div>
             )}
 
-            {isLoading && transferencias.length === 0 ? (
-              <div className="text-white">Carregando transferências...</div>
-            ) : transferencias.length === 0 ? (
+            {transferencias.length === 0 ? (
               <div className="text-white">Nenhuma transferência encontrada</div>
             ) : (
               <div className="space-y-3">
                 {transferencias.map((transf) => (
-                  <div key={transf.id} className="border p-4 rounded bg-gray-800 text-white">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">{transf.nome}</span>
-                      <span className={`font-bold ${
+                  <div key={`${transf.id}_${new Date(transf.transferido_em).getTime()}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-semibold text-lg">{transf.nome}</span>
+                      <span className={`font-bold text-lg ${
                         transf.tipo === 'Entrada' ? 'text-green-400' : 'text-red-400'
                       }`}>
-                        {transf.tipo === 'Entrada' ? '+' : '-'} R$ {transf.valor?.toFixed(2)}
+                        {transf.tipo === 'Entrada' ? '+' : '-'} R$ {transf.valor}
                       </span>
                     </div>
-                    <p className="text-gray-300 mt-1">{transf.descricao}</p>
-                    <p className="text-sm text-gray-400 mt-2">
-                      {new Date(transf.data).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
+
+                    <div className="flex justify-between items-end">
+                      <p className="text-gray-300 flex-1 pr-4">{transf.descricao}</p>
+                      <p className="text-sm text-gray-400">
+                        {new Date(transf.data).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
