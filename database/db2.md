@@ -1,14 +1,7 @@
-~~~ SQL
-#####################################################################	DATA BASE	#####################################################################
+``` SQL
 create database Atheos;
 use Atheos;
--- drop database Atheos;
-drop table transacoes;
-drop table metas;
-drop table categorias;
--- drop table usuarios;
-
-
+# drop database atheos;
 #####################################################################	TABELAS		#####################################################################
 
 create table if not exists usuarios (
@@ -25,7 +18,8 @@ create table if not exists transacoes (
 	id INT auto_increment PRIMARY KEY,
     tipo ENUM('entrada', 'saida') NOT NULL,
     valor DECIMAL(12,2) NOT NULL CHECK (valor >= 0.01),
-    data DATE NOT NULL,
+    nome varchar(50) not null,,
+    data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     descricao TEXT,
     transferido_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
@@ -59,36 +53,8 @@ create table if not exists metas (
     INDEX idx_metas_periodo (mes, ano)
 );
 
-#################################################################################################################################
-#													INSERT INTO																	#
-#################################################################################################################################
-INSERT INTO usuarios (nome, email, senha) VALUES 
-('Samuel Juan', 'samuel@email.com', '1234'),
-('João Certinato', 'joao@email.com', '2020'),
-('Roberto Migales', 'roberto@email.com', 'tes12'),
-('Jurema Santista', 'jurema@email.com', '44455'),
-('Ruan Robert', 'ruan@email.com', '88888');
-
-INSERT INTO transacoes (tipo, valor, data, descricao, usuario_id)
-VALUES 
-  ('entrada', 3500.00, '2025-05-01', 'Salário de Maio', '1', '1'),
-  ('saida', 75.50, '2025-05-03', 'Compra no mercado', '1', '2'),
-  ('saida', 15.00, '2025-05-04', 'Passagem de ônibus', '1', '3'),
-  ('entrada', 850.00, '2025-05-10', 'Projeto freelance finalizado', '1', '4'),
-  ('saida', 120.00, '2025-05-11', 'Cinema e pizza com amigos', '1', '5'),
-  ('saida', 300.00, '2025-05-12', 'Curso online de SQL', '1', '6'),
-  ('saida', 500.00, '2025-05-14', 'Aplicação em fundo de renda fixa', '1', '7'),
-  ('saida', 45.00, '2025-05-15', 'Consulta médica particular', '1', '8'),
-  ('entrada', 150.00, '2025-05-16', 'Venda de item usado', '1', '9'),
-  ('saida', 20.00, '2025-05-17', 'Ajuda para um amigo', '1', '10');
 
 
-INSERT INTO metas (nome, valor_limite, mes, ano, usuario_id)
-VALUES 
-  ('Limite Alimentação Maio', 600.00, 5, 2025, '1', '2'),
-  ('Meta Transporte Maio', 200.00, 5, 2025, '1', '3');
-  
-  
   CREATE VIEW view_transacoes AS
 SELECT 
     t.id,
@@ -114,4 +80,3 @@ FROM
     metas m
 ORDER BY 
     m.ano DESC, m.mes DESC;
-~~~
