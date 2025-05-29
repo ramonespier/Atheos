@@ -1,4 +1,18 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 export default function Header() {
+  const pathname = usePathname();
+
+  const getTitle = () => {
+    if (pathname === "/dashboard") return "Dashboard ATHEOS";
+    if (pathname.startsWith("/dashboard/extratos")) return "Extratos";
+    if (pathname.startsWith("/dashboard/metas")) return "Metas";
+    if (pathname.startsWith("/dashboard/config")) return "Configurações";
+    return "Dashboard ATHEOS"; // fallback se não cair em nada
+  };
+
   return (
     <header
       style={{ '--background': '#1d293d' }}
@@ -25,33 +39,10 @@ export default function Header() {
           focus:outline-none focus:ring-2 focus:ring-orange-400 rounded
           select-none
         "
-        aria-label="Dashboard ATHEOS"
+        aria-label={getTitle()}
       >
-        Dashboard ATHEOS
+        {getTitle()}
       </h2>
-
-      <nav className="hidden md:flex space-x-10">
-        {['Dashboard', 'Relatórios', 'Configurações'].map((item, idx) => (
-          <a
-            key={idx}
-            href={`/${item.toLowerCase()}`}
-            className="
-              relative text-sm font-semibold uppercase tracking-wider
-              text-gray-300
-              before:absolute before:-bottom-1 before:left-0 before:w-full before:h-0.5 before:bg-gradient-to-r before:from-orange-400 before:via-yellow-400 before:to-orange-500 before:scale-x-0 before:origin-left before:transition-transform before:duration-300
-              hover:text-white
-              hover:before:scale-x-100
-              focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950
-              cursor-pointer
-              select-none
-              transition-colors duration-300
-            "
-            tabIndex={0}
-          >
-            {item}
-          </a>
-        ))}
-      </nav>
     </header>
   )
 }
