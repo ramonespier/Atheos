@@ -1,7 +1,7 @@
-``` SQL
+```SQL
 create database Atheos;
 use Atheos;
-# drop database atheos;
+-- drop database atheos;
 #####################################################################	TABELAS		#####################################################################
 
 create table if not exists usuarios (
@@ -18,7 +18,7 @@ create table if not exists transacoes (
 	id INT auto_increment PRIMARY KEY,
     tipo ENUM('entrada', 'saida') NOT NULL,
     valor DECIMAL(12,2) NOT NULL CHECK (valor >= 0.01),
-    nome varchar(50) not null,,
+    nome varchar(50) not null,
     data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     descricao TEXT,
     transferido_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,6 +61,7 @@ SELECT
     t.tipo,
     t.valor,
     t.data,
+    t.nome,
     t.descricao,
     t.usuario_id
 FROM 
@@ -80,3 +81,19 @@ FROM
     metas m
 ORDER BY 
     m.ano DESC, m.mes DESC;
+    
+CREATE VIEW view_totais_por_usuario AS
+SELECT 
+    u.id AS usuario_id,
+    COALESCE(SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END), 0) AS total_entradas,
+    COALESCE(SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END), 0) AS total_saidas,
+    (COALESCE(SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END), 0) - 
+     COALESCE(SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END), 0)) AS saldo
+FROM 
+    usuarios u
+LEFT JOIN 
+    transacoes t ON u.id = t.usuario_id
+GROUP BY 
+    u.id, u.nome, u.email
+ORDER BY 
+    u.nome;
