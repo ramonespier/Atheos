@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Head from "next/head";
 import { FiArrowUp } from "react-icons/fi";
+import validator from 'validator'
 
 export default function Home() {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,10 +11,10 @@ export default function Home() {
     email: "",
     senha: "",
     nome: "",
+    confirmar: ""
   });
   const [mensagem, setMensagem] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,10 +24,44 @@ export default function Home() {
     }));
   };
 
+  function validarNome(nome) {
+    return /^[A-Za-zÀ-ú\s]+$/.test(nome);
+  }
+
+  function validarEmail(email) {
+    return validator.isEmail(email)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setMensagem("");
+
+    if (!isLogin) {
+      if (!validarNome(formData.nome)) {
+        setMensagem("O nome não deve conter números ou caracteres especiais.");
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    if (!validarEmail(formData.email)) {
+      setMensagem('Email inválido')
+      setIsLoading(false)
+      return;
+    }
+
+    if (!isLogin && formData.senha !== formData.confirmar) {
+      setMensagem("As senhas não coincidem, tente novamente.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isLogin && formData.senha.length < 6) {
+      setMensagem('A senha deve conter no mínimo 6 caracteres, crie uma senha maior')
+      setIsLoading(false)
+      return;
+    }
 
     try {
       const endpoint = isLogin ? "/usuario/login" : "/usuario/cadastro";
@@ -40,8 +75,9 @@ export default function Home() {
 
       const data = await response.json();
 
+
       if (response.ok) {
-        setMensagem(isLogin ? "Login realizado com sucesso!" : "Cadastro realizado com sucesso!");
+        setMensagem(isLogin ? "Login realizado com sucesso! Entrando no olimpo..." : "Cadastro realizado com sucesso! Faça seu login!");
 
         if (isLogin && data.token) {
           localStorage.setItem("token", data.token);
@@ -50,12 +86,12 @@ export default function Home() {
             window.location.href = "/dashboard";
           }, 600);
         }
-
         if (!isLogin) {
           setFormData({
             email: "",
             senha: "",
             nome: "",
+            confirmar: ""
           });
         }
       } else {
@@ -80,7 +116,7 @@ export default function Home() {
         className={`relative border rounded-3xl shadow-2xl p-10 w-full max-w-md text-center backdrop-blur-x5 transition-all duration-700
           ${isLogin
             ? "bg-gradient-to-br from-black via-black/90 to-orange-900 border-gray-800 hover:shadow-orange-500/30"
-            : "bg-gradient-to-br from-black via-black/35 to-orange-700 border-orange-700 hover:shadow-white/30 scale-[1.03]"
+            : "bg-gradient-to-br from-black via-black/35 to-orange-900 border-orange-700 hover:shadow-white/30 scale-[1.03]"
           }`}
       >
         <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg animate-pulse">
@@ -107,9 +143,9 @@ export default function Home() {
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
-                required
+
                 placeholder="Seu nome completo"
-                className="input-field"
+                className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
               />
             </div>
           )}
@@ -123,9 +159,8 @@ export default function Home() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              required
               placeholder="seuemail@olympus.com"
-              className="input-field"
+              className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
             />
           </div>
 
@@ -138,11 +173,29 @@ export default function Home() {
               name="senha"
               value={formData.senha}
               onChange={handleChange}
-              required
+
               placeholder="********"
-              className="input-field"
+              className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
             />
           </div>
+
+          {!isLogin && (
+            <div className="text-left animate-fade-in-down">
+              <label className="block text-xs font-medium text-gray-300 mb-1">
+                Confirme sua senha
+              </label>
+              <input
+                type="password"
+                name="confirmar"
+                value={formData.confirmar}
+                onChange={handleChange}
+
+                placeholder="********"
+                className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
+              />
+            </div>
+          )}
+
 
           <button
             type="submit"
@@ -179,10 +232,9 @@ export default function Home() {
 
         {mensagem && (
           <div
-            className={`mt-4 p-3 text-xs rounded-lg font-medium ${
-              mensagem.includes("sucesso")
-                ? "bg-green-600/20 text-green-300"
-                : "bg-red-600/20 text-red-300"
+            className={`mt-4 p-3 text-lg rounded-lg ${mensagem.includes("sucesso")
+              ? "bg-green-600/20 text-green-200"
+              : "bg-red-600/50 text-red-100"
               } animate-pulse`}
           >
             {mensagem}
@@ -192,14 +244,12 @@ export default function Home() {
         <div className="absolute top-1/2 -right-8 transform -translate-y-1/2">
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-transform duration-500 hover:rotate-180 hover:scale-125 ${
-              isLogin ? "" : "rotate-90"
-            }`}
+            className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-transform duration-500 hover:rotate-180 hover:scale-125 ${isLogin ? "" : "rotate-90"
+              }`}
           >
             <FiArrowUp
-              className={`text-white text-xl transition-transform duration-500 ${
-                !isLogin ? "rotate-90" : "rotate-0"
-              }`}
+              className={`text-white text-xl transition-transform duration-500 ${!isLogin ? "rotate-90" : "rotate-0"
+                }`}
             />
           </button>
         </div>

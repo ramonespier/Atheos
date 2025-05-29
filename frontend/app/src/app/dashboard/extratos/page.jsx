@@ -163,7 +163,7 @@ export default function Extratos() {
             {transferencias.length === 0 ? (
               <div className="text-white">Nenhuma transferência encontrada</div>
             ) : (
-              <div className="flex flex-col-reverse">
+              <div className="flex flex-col">
                 {transferencias.map((transf) => (
                   <div key={`${transf.id}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
                     <div className="flex justify-between items-start mb-2">
