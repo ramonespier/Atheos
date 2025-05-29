@@ -114,8 +114,8 @@ export default function Extratos() {
                 id="tipo"
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               >
-                <option value="Entrada">Entrada</option>
-                <option value="Saída">Saída</option>
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
               </select>
             </div>
 
@@ -169,9 +169,9 @@ export default function Extratos() {
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-lg">{transf.nome}</span>
                       <span className={`font-bold text-lg ${
-                        transf.tipo === 'Entrada' ? 'text-green-400' : 'text-red-400'
+                        transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'
                       }`}>
-                        {transf.tipo === 'Entrada' ? '+' : '-'} R$ {transf.valor}
+                        {transf.tipo === 'entrada' ? '+' : '-'} R$ {transf.valor}
                       </span>
                     </div>
 
