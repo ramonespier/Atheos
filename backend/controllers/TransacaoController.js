@@ -24,7 +24,8 @@ const adicionarTransacaoController = async (req, res) => {
             tipo: tipo,
             valor: valor,
             descricao: descricao,
-            usuario_id: req.usuarioId
+            usuario_id: req.usuarioId,
+            data: new Date()
         };
 
         await adicionarTransacao(transacaoData);

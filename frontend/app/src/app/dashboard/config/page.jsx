@@ -11,9 +11,41 @@ export default function Extratos() {
       <main className="flex-1 bg-[#121210] min-h-screen flex flex-col">
         <Header />
 
-        <a>texto teste</a>
+        <div>
+          <div>
 
-        {/* LISTAS */}
+            <div>
+              <h1>Configurações</h1>
+            </div>
+
+            <div>
+              <main>
+
+                {/* Perfil */}
+                <div>
+                  <div>
+                    <div>Perfil - descricao</div>
+                    <div>nome e Email</div>
+                  </div>
+                </div>
+
+
+                {/* Sobre */}
+                <div>
+                  <div>
+                    <div>Sobre</div>
+                    <div>Img</div>
+                    <div>"Footer"</div>
+                  </div>
+                </div>
+
+              </main>
+            </div>
+
+          </div>
+
+        </div>
+        <a>texto teste</a>
 
         <Footer />
       </main>

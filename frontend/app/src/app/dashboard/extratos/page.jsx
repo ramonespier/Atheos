@@ -5,15 +5,34 @@ import Header from '../../components/DashBoard/Header'
 import Footer from '../../components/DashBoard/Footer.jsx'
 
 export default function Extratos() {
-  // Estados
   const [usuario, setUsuario] = useState({});
   const [transferencias, setTransferencias] = useState([]);
   const [erro, setErro] = useState(null);
 
-  // Buscar dados do usuário
+  // Função fora do useEffect para poder reutilizar
+  const buscarTransferencias = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!resposta.ok) throw new Error('Erro ao carregar transferências');
+
+      const dadosTransferencias = await resposta.json();
+      setTransferencias(dadosTransferencias);
+    } catch (error) {
+      setErro(error.message);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
+
     const buscarUsuario = async () => {
       try {
         const resposta = await fetch('http://localhost:3001/usuario/autenticado', {
@@ -22,49 +41,30 @@ export default function Extratos() {
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (!resposta.ok) throw new Error('Não autenticado');
-        
+
         const dadosUsuario = await resposta.json();
         setUsuario(dadosUsuario);
-        buscarTransferencias();
+        await buscarTransferencias();
       } catch (error) {
         setErro(error.message);
         window.location.href = '/login';
       }
     };
 
-    // Buscar transferências
-    const buscarTransferencias = async () => {
-      try {
-        const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!resposta.ok) throw new Error('Erro ao carregar transferências');
-        
-        const dadosTransferencias = await resposta.json();
-        setTransferencias(dadosTransferencias);
-      } catch (error) {
-        setErro(error.message);
-      }
-    };
-
     buscarUsuario();
   }, []);
 
-  // Adicionar nova transferência
+  // Adiciona nova transferência e atualiza a lista
   const adicionarTransferencia = async (evento) => {
     evento.preventDefault();
     const token = localStorage.getItem('token');
-    
+
     try {
       const formData = new FormData(evento.target);
       const dados = Object.fromEntries(formData);
-      
+
       const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
         method: 'POST',
         headers: {
@@ -73,11 +73,11 @@ export default function Extratos() {
         },
         body: JSON.stringify(dados)
       });
-      
+
       if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
-      
-      const novaTransferencia = await resposta.json();
-      setTransferencias([novaTransferencia, ...transferencias]);
+
+      // Recarrega transferências atualizadas
+      await buscarTransferencias();
       evento.target.reset();
     } catch (error) {
       setErro(error.message);
@@ -87,15 +87,15 @@ export default function Extratos() {
   return (
     <div className="flex font-minhaFonte">
       <Sidebar />
-      
+
       <main className="flex-1 bg-[#121210] min-h-screen flex flex-col">
         <Header />
-        
+
         <div className="p-6 space-y-6">
           {/* Formulário de Nova Transferência */}
           <form onSubmit={adicionarTransferencia} className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nova Transferência</h2>
-            
+
             <div className="mb-4">
               <label htmlFor="nome" className="block text-white mb-2">Nome:</label>
               <input 
@@ -114,8 +114,8 @@ export default function Extratos() {
                 id="tipo"
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               >
-                <option value="Entrada">Entrada</option>
-                <option value="Saída">Saída</option>
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
               </select>
             </div>
 
@@ -153,7 +153,7 @@ export default function Extratos() {
           {/* Lista de Transferências */}
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-4">Histórico de Transferências</h2>
-            
+
             {erro && (
               <div className="bg-red-800 text-white p-3 rounded mb-4">
                 Erro: {erro}
@@ -163,15 +163,15 @@ export default function Extratos() {
             {transferencias.length === 0 ? (
               <div className="text-white">Nenhuma transferência encontrada</div>
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col-reverse">
                 {transferencias.map((transf) => (
-                  <div key={`${transf.id}_${new Date(transf.transferido_em).getTime()}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
+                  <div key={`${transf.id}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-lg">{transf.nome}</span>
                       <span className={`font-bold text-lg ${
-                        transf.tipo === 'Entrada' ? 'text-green-400' : 'text-red-400'
+                        transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'
                       }`}>
-                        {transf.tipo === 'Entrada' ? '+' : '-'} R$ {transf.valor}
+                        {transf.tipo === 'entrada' ? '+' : '-'} R$ {transf.valor}
                       </span>
                     </div>
 
