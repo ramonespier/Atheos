@@ -18,11 +18,12 @@ const transacaoController = async (req, res) => {
 
 const adicionarTransacaoController = async (req, res) => {
     try {
-        const { tipo, valor, descricao } = req.body;
+        const { tipo, valor, nome, descricao } = req.body;
 
         const transacaoData = {
             tipo: tipo,
             valor: valor,
+            nome: nome,
             descricao: descricao,
             usuario_id: req.usuarioId,
             data: new Date()
