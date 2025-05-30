@@ -7,7 +7,7 @@ export default function Header() {
   const pathname = usePathname();
 
   const getTitle = () => {
-    if (pathname === "/dashboard") return "Bem vinde ()";
+    if (pathname === "/dashboard") return `Dashboard Atheos`;
     if (pathname.startsWith("/dashboard/extratos")) return "Extratos";
     if (pathname.startsWith("/dashboard/metas")) return "Metas";
     if (pathname.startsWith("/dashboard/config")) return "Configurações";
