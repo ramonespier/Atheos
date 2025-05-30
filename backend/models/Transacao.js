@@ -20,7 +20,7 @@ const atualizarTransacao = async (id, transacaoData) => {
 
 const excluirTransacao = async (id) => {
     try {
-        return await deleteRecord('transcoes', `id = ${id}`)
+        return await deleteRecord('transacoes', `id = ${id}`)
     } catch (err) {
         console.error('Erro ao excluir transação', err)
         throw err;
