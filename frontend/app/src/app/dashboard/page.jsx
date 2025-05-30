@@ -8,8 +8,11 @@ import TransactionList from "../components/DashBoard/TransactionList";
 import FinancialGoals from "../components/DashBoard/FinancialGoals";
 import CategoryExpenses from "../components/DashBoard/CategoryExpenses";
 import Footer from "../components/DashBoard/Footer";
+import { useRouter } from "next/navigation";
+
 
 export default function Home() {
+  const router = useRouter()
   const [usuario, setUsuario] = useState({});
   const [dadosDashboard, setDadosDashboard] = useState({
     transferencias: [],
@@ -101,7 +104,7 @@ export default function Home() {
         await buscarDadosDashboard();
       } catch (error) {
         setErro(error.message);
-        window.location.href = "/login";
+        router.push("/login")
       }
     };
 

@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import Sidebar from '../../components/DashBoard/Sidebar'
 import Header from '../../components/DashBoard/Header'
 import Footer from '../../components/DashBoard/Footer.jsx'
+import { useRouter } from "next/navigation";
 
 export default function Extratos() {
+  const router = useRouter()
   const [usuario, setUsuario] = useState({});
   const [transferencias, setTransferencias] = useState([]);
   const [erro, setErro] = useState(null);
@@ -49,7 +51,7 @@ export default function Extratos() {
         await buscarTransferencias();
       } catch (error) {
         setErro(error.message);
-        window.location.href = '/login';
+        router.push('/login')
       }
     };
 
@@ -66,6 +68,16 @@ export default function Extratos() {
       const dados = Object.fromEntries(formData);
       const valor = dados.valor.toString()
 
+      if(valor.length > 10) {
+        setErro('O valor não pode exceder 10 caracteres.')
+        return;
+      }
+
+      const partes = valor.split('.');
+      if (partes.length > 1 && partes[1].length > 2) {
+        throw new Error('Use no maximo 2 casas decimais')
+      }
+
       const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
         method: 'POST',
         headers: {
@@ -75,18 +87,15 @@ export default function Extratos() {
         body: JSON.stringify(dados)
       });
 
-      if(valor.length > 10) {
-        setErro('O valor não pode exceder 10 caracteres.')
-        return;
-      }
 
       if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
 
       // Recarrega transferências atualizadas
       await buscarTransferencias();
       evento.target.reset();
+      setErro(null)
     } catch (error) {
-      setErro(error.message);
+      setErro('Erro na transferência: ', error);
     }
   };
 
@@ -143,7 +152,7 @@ export default function Extratos() {
             <h2 className="text-xl font-bold text-white mb-4">Nova Transferência</h2>
 
             <div className="mb-4">
-              <label htmlFor="nome" className="block text-white mb-2">Nome:</label>
+              <label htmlFor="nome" className="block text-white mb-2">Destinatário:</label>
               <input
                 type="text"
                 id="nome"

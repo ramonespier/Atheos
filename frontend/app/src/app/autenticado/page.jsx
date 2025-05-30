@@ -1,15 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react";
-
-function disconnect() {
-  localStorage.removeItem('token')
-  window.location.href = '/'
-}
+import { useRouter } from "next/navigation";
 
 export default function Autenticado() {
+  const router = useRouter()
   const [usuario, setUsuario] = useState([]);
-
+  
+  function disconnect() {
+    localStorage.removeItem('token')
+    router.push('/')
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
