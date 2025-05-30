@@ -9,6 +9,7 @@ export default function Extratos() {
   const [transferencias, setTransferencias] = useState([]);
   const [erro, setErro] = useState(null);
 
+  // Função fora do useEffect para poder reutilizar
   const buscarTransferencias = async () => {
     const token = localStorage.getItem('token');
 
@@ -55,6 +56,7 @@ export default function Extratos() {
     buscarUsuario();
   }, []);
 
+  // Adiciona nova transferência e atualiza a lista
   const adicionarTransferencia = async (evento) => {
     evento.preventDefault();
     const token = localStorage.getItem('token');
@@ -62,6 +64,7 @@ export default function Extratos() {
     try {
       const formData = new FormData(evento.target);
       const dados = Object.fromEntries(formData);
+      const valor = dados.valor.toString()
 
       const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
         method: 'POST',
@@ -72,8 +75,14 @@ export default function Extratos() {
         body: JSON.stringify(dados)
       });
 
+      if(valor.length > 10) {
+        setErro('O valor não pode exceder 10 caracteres.')
+        return;
+      }
+
       if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
 
+      // Recarrega transferências atualizadas
       await buscarTransferencias();
       evento.target.reset();
     } catch (error) {
@@ -81,108 +90,152 @@ export default function Extratos() {
     }
   };
 
+  const excluirTransferencia = async (id) => {
+    const token = localStorage.getItem('token')
+
+    try {
+      const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!resposta.ok) throw new Error('Erro ao excluir transferência');
+
+      setTransferencias(prev => prev.filter(transf => transf.id !== id));
+    } catch (error) {
+      setErro(error.message);
+    }
+  }
+
+  const editarTransferencia = async (id) => {
+    const token = localStorage.getItem('token')
+
+    try {
+      const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!resposta.ok) throw new Error('Erro ao excluir transferência');
+
+      setTransferencias(prev => prev.filter(transf => transf.id !== id));
+    } catch (error) {
+      setErro(error.message);
+    }
+  }
+
   return (
-    <div className="flex font-minhaFonte bg-slate-950 text-white">
+    <div className="flex font-minhaFonte">
       <Sidebar />
 
-      <main className="flex-1 min-h-screen flex flex-col">
+      <main className="flex-1 bg-[#121210] min-h-screen flex flex-col">
         <Header />
 
-        <div className="p-8 space-y-10">
-          <form 
-            onSubmit={adicionarTransferencia} 
-            className="bg-slate-900/70 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-gray-800 max-w-lg mx-auto"
-          >
-            <h2 className="text-2xl font-extrabold mb-6 tracking-wide bg-gradient-to-r from-orange-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Nova Transferência
-            </h2>
+        <div className="p-6 space-y-6">
+          {/* Formulário de Nova Transferência */}
+          <form onSubmit={adicionarTransferencia} className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
+            <h2 className="text-xl font-bold text-white mb-4">Nova Transferência</h2>
 
-            <div className="mb-6">
-              <label htmlFor="nome" className="block mb-2 text-sm uppercase tracking-wider">Nome:</label>
-              <input 
-                type="text" 
-                id="nome" 
-                name="nome" 
+            <div className="mb-4">
+              <label htmlFor="nome" className="block text-white mb-2">Nome:</label>
+              <input
+                type="text"
+                id="nome"
+                name="nome"
                 required
-                className="w-full px-4 py-3 bg-slate-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               />
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="tipo" className="block mb-2 text-sm uppercase tracking-wider">Tipo:</label>
-              <select 
-                name="tipo" 
+            <div className="mb-4">
+              <label htmlFor="tipo" className="block text-white mb-2">Tipo:</label>
+              <select
+                name="tipo"
                 id="tipo"
-                className="w-full px-4 py-3 bg-slate-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               >
                 <option value="entrada">Entrada</option>
                 <option value="saida">Saída</option>
               </select>
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="valor" className="block mb-2 text-sm uppercase tracking-wider">Valor (R$):</label>
-              <input 
-                type="number" 
-                name="valor" 
-                id="valor" 
+            <div className="mb-4">
+              <label htmlFor="valor" className="block text-white mb-2">Valor (R$):</label>
+              <input
+                type="number"
+                name="valor"
+                id="valor"
                 step="0.01"
                 min="0"
+                // max={100000}
                 required
-                className="w-full px-4 py-3 bg-slate-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               />
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="descricao" className="block mb-2 text-sm uppercase tracking-wider">Descrição:</label>
-              <textarea 
-                name="descricao" 
+            <div className="mb-4">
+              <label htmlFor="descricao" className="block text-white mb-2">Descrição:</label>
+              <textarea
+                name="descricao"
                 id="descricao"
                 rows="3"
-                className="w-full px-4 py-3 bg-slate-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                maxLength={250}
+                className="w-full px-3 py-2 bg-gray-700 text-white rounded h-[160px]"
+                placeholder="Digite até 250 caracteres"
               ></textarea>
             </div>
 
-            <button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-orange-400 via-yellow-400 to-orange-500 hover:brightness-125 text-black font-bold py-3 rounded-xl uppercase tracking-wide transition duration-300"
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
-              Adicionar
+              Adicionar Transferência
             </button>
           </form>
 
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-extrabold mb-6 tracking-wide bg-gradient-to-r from-orange-400 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Histórico de Transferências
-            </h2>
+          {/* Lista de Transferências */}
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-xl font-bold text-white mb-4">Histórico de Transferências</h2>
 
             {erro && (
-              <div className="bg-red-500 text-white p-4 rounded-xl mb-6">
+              <div className="bg-red-800 text-white p-3 rounded mb-4">
                 Erro: {erro}
               </div>
             )}
 
             {transferencias.length === 0 ? (
-              <div className="text-gray-400">Nenhuma transferência encontrada</div>
+              <div className="text-white">Nenhuma transferência encontrada</div>
             ) : (
-              <div className="space-y-4">
+              <div className="flex flex-col">
                 {transferencias.map((transf) => (
-                  <div 
-                    key={`${transf.id}`} 
-                    className="p-6 rounded-2xl bg-slate-900/70 backdrop-blur-lg border border-gray-800 hover:border-orange-400 transition duration-300"
-                  >
-                    <div className="flex justify-between items-center mb-2">
+                  <div key={`${transf.id}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
+                    <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-lg">{transf.nome}</span>
-                      <span className={`font-bold text-lg ${
-                        transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'
-                      }`}>
+                      <span className={`font-bold text-lg ${transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'
+                        }`}>
                         {transf.tipo === 'entrada' ? '+' : '-'} R$ {transf.valor}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-end text-sm text-gray-400">
-                      <p className="pr-4">{transf.descricao}</p>
-                      <p>
+                    <div className="flex justify-between items-end">
+                      <p className="text-gray-300 break-words w-2/3 mb-3">{transf.descricao}</p>
+                      <div className="flex flex-col gap-5 relative">
+                        <button className="bg-red-600 
+                        hover:bg-red-700 
+                        text-white 
+                        py-1 px-3 
+                        rounded 
+                        text-sm" 
+                        onClick={() => excluirTransferencia(transf.id)}>EXCLUIR</button>
+                        <button>EDITAR</button>
+                      </div>
+                      <p className="text-sm text-gray-400">
                         {new Date(transf.data).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit',
