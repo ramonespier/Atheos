@@ -16,7 +16,7 @@ export default function TransactionList() {
       try {
         const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         })
@@ -38,17 +38,17 @@ export default function TransactionList() {
   }
 
   return (
-    <section className="bg-[#1C1B18] text-white p-6 rounded flex-1">
-      <h3 className="text-lg font-bold mb-4">Transações Recentes do Mês</h3>
+    <section className="bg-[#030712] text-yellow-400 p-6 rounded flex-1 shadow-lg shadow-black/80">
+      <h3 className="font-bold mb-4 select-none">Transações Recentes do Mês</h3>
 
       {erro && (
-        <div className="bg-red-800 text-white p-3 rounded mb-4">
+        <div className="bg-red-900 text-yellow-300 p-3 rounded mb-4 select-none">
           Erro: {erro}
         </div>
       )}
 
       {transferencias.length === 0 ? (
-        <div className="text-zinc-400">Nenhuma transação encontrada.</div>
+        <div className="text-yellow-600 select-none">Nenhuma transação encontrada.</div>
       ) : (
         <ul className="space-y-2">
           {transferencias.map((item, idx) => {
@@ -59,9 +59,11 @@ export default function TransactionList() {
             return (
               <li
                 key={item.id}
-                className={`border-b border-[#333] pb-2 cursor-pointer select-none transition-all duration-200 ${
-                  isExpanded ? 'bg-zinc-1000 scale-[1.02] shadow-md border-yellow-400' : 'hover:bg-zinc-1900 hover:scale-[1.02] hover:shadow-md'
-                }`}
+                className={`border-b border-yellow-700 pb-2 cursor-pointer select-none transition-all duration-200
+                  ${isExpanded
+                    ? 'bg-yellow-900/20 shadow-yellow-700 shadow-md'
+                    : 'hover:bg-yellow-900/10 hover:shadow-yellow-700/30 hover:shadow-md'}
+                `}
                 onClick={() => toggleExpand(idx)}
                 aria-expanded={isExpanded}
                 aria-controls={descriptionId}
@@ -74,22 +76,19 @@ export default function TransactionList() {
                   <div className="flex items-center gap-2">
                     <FontAwesomeIcon
                       icon={faChevronDown}
-                      className={`w-3 h-3 transition-transform duration-300 ${
-                        isExpanded ? 'rotate-180 text-yellow-400' : 'text-zinc-400'
-                      }`}
+                      className={`w-3 h-3 transition-transform duration-300
+                        ${isExpanded ? 'rotate-180 text-yellow-400' : 'text-yellow-600'}
+                      `}
                     />
                     <span>{item.nome}</span>
                   </div>
-                  <span className={isPositive ? 'text-green-400' : 'text-red-400'}>
+                  <span className={isPositive ? 'text-green-400' : 'text-red-500'}>
                     {isPositive ? '+' : '-'}R$ {Number(item.valor).toFixed(2)}
                   </span>
                 </div>
 
                 {isExpanded && (
-                  <p
-                    id={descriptionId}
-                    className="mt-2 text-sm text-zinc-400"
-                  >
+                  <p id={descriptionId} className="mt-2 text-yellow-300 text-sm">
                     {item.descricao}
                   </p>
                 )}
@@ -99,7 +98,10 @@ export default function TransactionList() {
         </ul>
       )}
 
-      <button className="mt-4 text-sm hover:text-yellow-400 cursor-pointer">
+      <button
+        className="mt-4 text-yellow-400 hover:text-yellow-300 cursor-pointer select-none transition-colors duration-200"
+        type="button"
+      >
         Ver todas as transações →
       </button>
     </section>
