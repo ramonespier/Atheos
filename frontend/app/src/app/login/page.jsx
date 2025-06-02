@@ -189,14 +189,12 @@ export default function Home() {
                 name="confirmar"
                 value={formData.confirmar}
                 onChange={handleChange}
-
                 placeholder="********"
                 className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
               />
             </div>
           )}
-
-
+          
           <button
             type="submit"
             disabled={isLoading}

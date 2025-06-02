@@ -34,7 +34,7 @@ export default function Autenticado() {
       })
       .catch(err => {
         console.error('Erro:', err);
-        window.location.href = '/login'
+       router.push('/login')
       });
   }, []);
 
