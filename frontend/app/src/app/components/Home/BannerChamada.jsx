@@ -7,8 +7,8 @@ export default function BannerChamada() {
             <p className="text-lg md:text-xl text-center max-w-2xl">
                 Torne-se mestre das suas finanças com Atheos. Comece agora sua jornada rumo à sabedoria divina!
             </p>
-            <a href="/cadastro" className="bg-white text-indigo-700 font-semibold py-3 px-8 rounded-xl hover:bg-indigo-100 transition-all">
-                Criar Conta
+            <a href="/login" className="bg-white text-indigo-700 font-semibold py-3 px-8 rounded-xl hover:bg-indigo-100 transition-all">
+                Fazer Login/Cadastro
             </a>
         </section>
     )
