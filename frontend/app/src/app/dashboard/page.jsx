@@ -37,13 +37,13 @@ export default function Home() {
       const [resSaldo, resTransacoes] = await Promise.all([
         fetch("http://localhost:3001/usuario/dashboard/saldo", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json"
           }
         }),
         fetch("http://localhost:3001/usuario/dashboard/extratos", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json"
           }
         })
