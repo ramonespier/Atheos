@@ -20,7 +20,7 @@ router.put('/dashboard/extratos/:id', authMiddleware, atualizarTransacaoControll
 router.delete('/dashboard/extratos/:id', authMiddleware, excluirTransacaoController)
 
 router.get('/dashboard/config', authMiddleware, configController)
-router.put('/dashboard/config', authMiddleware, atualizarUsuariosController)
+router.put('/dashboard/config/:id', authMiddleware, atualizarUsuariosController)
 
 router.get('/dashboard/saldo', authMiddleware, saldoController )
 router.post('/dashboard/saldo', authMiddleware, saldoController )
