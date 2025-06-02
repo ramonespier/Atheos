@@ -10,6 +10,8 @@ export default function Extratos() {
   const [usuario, setUsuario] = useState({});
   const [transferencias, setTransferencias] = useState([]);
   const [erro, setErro] = useState(null);
+  const [editTransferencia, setEditTransferencia] = useState(null); // transferencia para editar
+  const [mostrarEditor, setMostrarEditor] = useState(false); // controlar modal
 
   // Função fora do useEffect para poder reutilizar
   const buscarTransferencias = async () => {
@@ -51,7 +53,7 @@ export default function Extratos() {
         await buscarTransferencias();
       } catch (error) {
         setErro(error.message);
-        router.push('/login')
+        router.push('/login');
       }
     };
 
@@ -66,16 +68,16 @@ export default function Extratos() {
     try {
       const formData = new FormData(evento.target);
       const dados = Object.fromEntries(formData);
-      const valor = dados.valor.toString()
+      const valor = dados.valor.toString();
 
-      if(valor.length > 10) {
-        setErro('O valor não pode exceder 10 caracteres.')
+      if (valor.length > 10) {
+        setErro('O valor não pode exceder 10 caracteres.');
         return;
       }
 
       const partes = valor.split('.');
       if (partes.length > 1 && partes[1].length > 2) {
-        throw new Error('Use no maximo 2 casas decimais')
+        throw new Error('Use no maximo 2 casas decimais');
       }
 
       const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
@@ -87,20 +89,19 @@ export default function Extratos() {
         body: JSON.stringify(dados)
       });
 
-
       if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
 
       // Recarrega transferências atualizadas
       await buscarTransferencias();
       evento.target.reset();
-      setErro(null)
+      setErro(null);
     } catch (error) {
-      setErro('Erro na transferência: ', error);
+      setErro('Erro na transferência: ' + error);
     }
   };
 
   const excluirTransferencia = async (id) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
 
     try {
       const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${id}`, {
@@ -117,27 +118,56 @@ export default function Extratos() {
     } catch (error) {
       setErro(error.message);
     }
-  }
+  };
 
-  const editarTransferencia = async (id) => {
-    const token = localStorage.getItem('token')
+  const abrirModalEdicao = (transferencia) => {
+    setEditTransferencia(transferencia);
+    setMostrarEditor(true);
+  };
+
+  const fecharModalEdicao = () => {
+    setEditTransferencia(null);
+    setMostrarEditor(false);
+  };
+
+  const editarTransferencia = async (evento) => {
+    evento.preventDefault();
+    const token = localStorage.getItem('token');
 
     try {
-      const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${id}`, {
+      const formData = new FormData(evento.target);
+      const dados = Object.fromEntries(formData);
+      const valor = dados.valor.toString();
+
+      if (valor.length > 10) {
+        setErro('O valor não pode exceder 10 caracteres.');
+        return;
+      }
+
+      const partes = valor.split('.');
+      if (partes.length > 1 && partes[1].length > 2) {
+        throw new Error('Use no máximo 2 casas decimais');
+      }
+
+      const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${editTransferencia.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
+        body: JSON.stringify(dados)
       });
 
-      if (!resposta.ok) throw new Error('Erro ao excluir transferência');
+      if (!resposta.ok) throw new Error('Erro ao editar transferência');
 
-      setTransferencias(prev => prev.filter(transf => transf.id !== id));
+      // carrega transferências atualizadas
+      await buscarTransferencias();
+      fecharModalEdicao();
+      setErro(null);
     } catch (error) {
       setErro(error.message);
     }
-  }
+  };
 
   return (
     <div className="flex font-minhaFonte">
@@ -182,7 +212,6 @@ export default function Extratos() {
                 id="valor"
                 step="0.01"
                 min="0"
-                // max={100000}
                 required
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               />
@@ -208,6 +237,88 @@ export default function Extratos() {
             </button>
           </form>
 
+          {mostrarEditor && editTransferencia && (
+            <div className="fixed inset-0 z-50">
+              <div className="absolute inset-0 backdrop-blur-lg"></div>
+
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                  <h2 className="text-xl font-bold text-white mb-4">Editar Transferência</h2>
+
+                  <form onSubmit={editarTransferencia}>
+                    <div className="mb-4">
+                      <label htmlFor="edit-nome" className="block text-white mb-2">Destinatário:</label>
+                      <input
+                        type="text"
+                        id="edit-nome"
+                        name="nome"
+                        required
+                        defaultValue={editTransferencia.nome}
+                        className="w-full px-3 py-2 bg-gray-700 text-white rounded"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label htmlFor="edit-tipo" className="block text-white mb-2">Tipo:</label>
+                      <select
+                        name="tipo"
+                        id="edit-tipo"
+                        defaultValue={editTransferencia.tipo}
+                        className="w-full px-3 py-2 bg-gray-700 text-white rounded"
+                      >
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                      </select>
+                    </div>
+
+                    <div className="mb-4">
+                      <label htmlFor="edit-valor" className="block text-white mb-2">Valor (R$):</label>
+                      <input
+                        type="number"
+                        name="valor"
+                        id="edit-valor"
+                        step="0.01"
+                        min="0"
+                        required
+                        defaultValue={editTransferencia.valor}
+                        className="w-full px-3 py-2 bg-gray-700 text-white rounded"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label htmlFor="edit-descricao" className="block text-white mb-2">Descrição:</label>
+                      <textarea
+                        name="descricao"
+                        id="edit-descricao"
+                        rows="3"
+                        maxLength={250}
+                        defaultValue={editTransferencia.descricao}
+                        className="w-full px-3 py-2 bg-gray-700 text-white rounded h-[160px]"
+                        placeholder="Digite até 250 caracteres"
+                      ></textarea>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <button
+                        type="button"
+                        onClick={fecharModalEdicao}
+                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Salvar Alterações
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Lista de Transferências */}
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-4">Histórico de Transferências</h2>
@@ -226,8 +337,7 @@ export default function Extratos() {
                   <div key={`${transf.id}`} className="border p-4 rounded bg-gray-800 text-white mb-3">
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-lg">{transf.nome}</span>
-                      <span className={`font-bold text-lg ${transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'
-                        }`}>
+                      <span className={`font-bold text-lg ${transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'}`}>
                         {transf.tipo === 'entrada' ? '+' : '-'} R$ {transf.valor}
                       </span>
                     </div>
@@ -235,14 +345,18 @@ export default function Extratos() {
                     <div className="flex justify-between items-end">
                       <p className="text-gray-300 break-words w-2/3 mb-3">{transf.descricao}</p>
                       <div className="flex flex-col gap-5 relative">
-                        <button className="bg-red-600 
-                        hover:bg-red-700 
-                        text-white 
-                        py-1 px-3 
-                        rounded 
-                        text-sm" 
-                        onClick={() => excluirTransferencia(transf.id)}>EXCLUIR</button>
-                        <button>EDITAR</button>
+                        <button
+                          className="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm"
+                          onClick={() => excluirTransferencia(transf.id)}
+                        >
+                          EXCLUIR
+                        </button>
+                        <button
+                          className="bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-3 rounded text-sm"
+                          onClick={() => abrirModalEdicao(transf)}
+                        >
+                          EDITAR
+                        </button>
                       </div>
                       <p className="text-sm text-gray-400">
                         {new Date(transf.data).toLocaleDateString('pt-BR', {
