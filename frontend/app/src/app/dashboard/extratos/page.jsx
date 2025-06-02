@@ -13,7 +13,7 @@ export default function Extratos() {
   const [editTransferencia, setEditTransferencia] = useState(null); // transferencia para editar
   const [mostrarEditor, setMostrarEditor] = useState(false); // controlar modal
 
-  // Função fora do useEffect para poder reutilizar
+  // useEffect para poder reutilizar
   const buscarTransferencias = async () => {
     const token = localStorage.getItem('token');
 
@@ -60,7 +60,7 @@ export default function Extratos() {
     buscarUsuario();
   }, []);
 
-  // Adiciona nova transferência e atualiza a lista
+  // Add nova transferência e atualiza a lista
   const adicionarTransferencia = async (evento) => {
     evento.preventDefault();
     const token = localStorage.getItem('token');
@@ -91,7 +91,7 @@ export default function Extratos() {
 
       if (!resposta.ok) throw new Error('Erro ao adicionar transferência');
 
-      // Recarrega transferências atualizadas
+      // carrega transferências atualizadas
       await buscarTransferencias();
       evento.target.reset();
       setErro(null);
@@ -188,6 +188,7 @@ export default function Extratos() {
                 id="nome"
                 name="nome"
                 required
+                placeholder="Nome da entidade"
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               />
             </div>
@@ -212,6 +213,7 @@ export default function Extratos() {
                 id="valor"
                 step="0.01"
                 min="0"
+                placeholder="R$ 0.000.000.00"
                 required
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded"
               />
@@ -225,7 +227,7 @@ export default function Extratos() {
                 rows="3"
                 maxLength={250}
                 className="w-full px-3 py-2 bg-gray-700 text-white rounded h-[160px]"
-                placeholder="Digite até 250 caracteres"
+                placeholder="Digite até 250 caracteres."
               ></textarea>
             </div>
 
