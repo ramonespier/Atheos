@@ -1,14 +1,51 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import validator from 'validator';
+import { useRouter } from 'next/navigation.js';
 import Sidebar from '../../components/DashBoard/Sidebar.jsx';
 import Header from '../../components/DashBoard/Header.jsx';
 import Footer from '../../components/DashBoard/Footer.jsx';
 
 export default function Config() {
-  const [formData, setFormData] = useState({ nome: "", email: "" });
+  const router = useRouter();
+  const [isPut, setIsPut] = useState(true);
+  const [usuario, setUsuario] = useState([]);
+  const [formData, setFormData] = useState(
+    {
+      nome: "",
+      email: ""
+    }
+  );
   const [mensagem, setMensagem] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    fetch('http://localhost:3001/usuario/autenticado', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Falha na autenticação');
+      return res.json();
+    })
+    .then(data => {
+      setUsuario(data);
+      // Atualiza o formData com o email do usuário
+      setFormData(prev => ({
+        ...prev,
+        email: data.email
+      }));
+    })
+    .catch(err => {
+      console.error('Erro:', err);
+      router.push('/login');
+    });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,12 +80,13 @@ export default function Config() {
       return;
     }
 
+
     try {
-      const response = await fetch("http://localhost:3001/dashboard/config", {
+      const response = await fetch("http://localhost:3001/usuario/dashboard/config/:id", {
         method: "PUT", // <-- Corrigido
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // se necessário
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(formData),
       });
@@ -86,31 +124,32 @@ export default function Config() {
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder={usuario.email}
+                    onChange={handleChange}
+                    disabled
+                    className="w-full px-4 py-2 rounded-md bg-black text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+
                 <label htmlFor="nome" className="block text-sm font-medium mb-1">Nome</label>
                 <input
                   type="text"
+
                   id="nome"
                   name="nome"
-                  value={formData.nome}
+                  placeholder={usuario.nome}
                   onChange={handleChange}
-                  placeholder="Seu nome"
+                  disabled
                   className="w-full px-4 py-2 rounded-md bg-black text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="seu.email@exemplo.com"
-                  className="w-full px-4 py-2 rounded-md bg-black text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              </div>
-
               <button
                 type="submit"
                 disabled={isLoading}
