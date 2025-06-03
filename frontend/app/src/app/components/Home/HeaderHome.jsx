@@ -111,9 +111,28 @@ export default function HeaderHome() {
             bg-gradient-to-r from-yellow-400 to-yellow-500
           "
         >
-          ATHEOS
-        </motion.span>
-      </Link>
+            <Link
+                href="/"
+                className="
+                    flex items-center gap-4
+                    hover:opacity-80
+                    transition
+                    select-none
+                    group
+                "
+            >
+                <img
+                    src="/Logo/logo.png"
+                    alt="Logotipo ATHEOS"
+                    className="
+                        w-10 h-10 md:w-20 md:h-20
+                        drop-shadow-[0_0_6px_rgba(255,193,7,0.9)]
+                        group-hover:scale-110
+                        transition-transform
+                    "
+                />
+                
+            </Link>
 
       <nav>
         <motion.div
