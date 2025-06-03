@@ -42,20 +42,24 @@ export default function SecaoApresentacao() {
 
         <div
           className="
-            rounded-full overflow-hidden w-52 h-52 md:w-64 md:h-64
-            ring-4 ring-yellow-700/60 shadow-lg
-            hover:scale-105 transition-transform duration-300
+          relative rounded-full overflow-hidden 
+          w-52 h-52 md:w-64 md:h-64 
+          ring-4 ring-yellow-700/60 shadow-xl 
+          hover:scale-105 transition-transform duration-300 ease-in-out
+        bg-black/10
           "
           aria-label="Imagem representativa do Olimpo"
         >
           <Image
             src="/ImgOlimpo/olimpo.jpg"
             alt="Moeda Atheos"
-            width={256}
-            height={256}
-            className="object-cover w-full h-full"
+            fill
+            className="object-cover"
+            sizes="(min-width: 768px) 16rem, 13rem"
+            priority
           />
         </div>
+
 
       </div>
     </section>

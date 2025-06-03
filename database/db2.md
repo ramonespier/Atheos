@@ -1,9 +1,10 @@
 ```SQL
+#####################################################################	DataBase	#####################################################################
 create database Atheos;
 use Atheos;
 -- drop database atheos;
-#####################################################################	TABELAS		#####################################################################
 
+#####################################################################	TABELAS		#####################################################################
 create table if not exists usuarios (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	nome VARCHAR(150),
@@ -12,7 +13,6 @@ create table if not exists usuarios (
 	criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 create table if not exists transacoes (
 	id INT auto_increment PRIMARY KEY,
@@ -26,13 +26,10 @@ create table if not exists transacoes (
     #######################################################################################################
     usuario_id int NOT NULL,
     CONSTRAINT fk_transacao_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-
-    
     CONSTRAINT chk_transacao_tipo CHECK (tipo IN ('entrada', 'saida')),
     INDEX idx_transacao_usuario (usuario_id),
     INDEX idx_transacao_data (data)
 );
-
 
 create table if not exists metas (
 	id INT auto_increment PRIMARY KEY,
@@ -43,20 +40,17 @@ create table if not exists metas (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    
 	#######################################################################################################
     usuario_id int NOT NULL,
     CONSTRAINT fk_metas_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-
     
     INDEX idx_metas_usuario (usuario_id),
     INDEX idx_metas_periodo (mes, ano)
 );
 
 
-
-  CREATE VIEW view_transacoes AS
-SELECT 
+#####################################################################	View	#####################################################################
+CREATE VIEW view_transacoes AS SELECT 
     t.id,
     t.tipo,
     t.valor,
@@ -69,8 +63,7 @@ FROM
 ORDER BY 
     t.data DESC;
     
-    CREATE VIEW view_metas AS
-SELECT 
+CREATE VIEW view_metas AS SELECT 
     m.id,
     m.nome,
     m.valor_limite,
@@ -82,8 +75,7 @@ FROM
 ORDER BY 
     m.ano DESC, m.mes DESC;
     
-CREATE VIEW view_totais_por_usuario AS
-SELECT 
+CREATE VIEW view_totais_por_usuario AS SELECT 
     u.id AS usuario_id,
     COALESCE(SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END), 0) AS total_entradas,
     COALESCE(SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END), 0) AS total_saidas,
@@ -96,4 +88,4 @@ LEFT JOIN
 GROUP BY 
     u.id, u.nome, u.email
 ORDER BY 
-    u.nome;
+	u.nome;

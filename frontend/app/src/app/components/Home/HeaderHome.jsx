@@ -26,27 +26,16 @@ export default function HeaderHome() {
                 "
             >
                 <img
-                    src="/vercel.svg"
+                    src="/Logo/logo.png"
                     alt="Logotipo ATHEOS"
                     className="
-                        w-10 h-10 md:w-12 md:h-12
+                        w-10 h-10 md:w-20 md:h-20
                         drop-shadow-[0_0_6px_rgba(255,193,7,0.9)]
                         group-hover:scale-110
                         transition-transform
                     "
                 />
-                <span
-                    className="
-                        font-extrabold
-                        text-2xl md:text-4xl tracking-wide
-                        text-yellow-400
-                        drop-shadow-[0_0_8px_rgba(255,193,7,0.8)]
-                        group-hover:text-yellow-300
-                        transition-colors
-                    "
-                >
-                    ATHEOS
-                </span>
+                
             </Link>
 
             <nav>
