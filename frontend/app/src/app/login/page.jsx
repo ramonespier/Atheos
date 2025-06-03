@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Head from "next/head";
 import { FiArrowUp } from "react-icons/fi";
-import validator from 'validator'
+import validator from 'validator';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function Home() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,8 +14,8 @@ export default function Home() {
     nome: "",
     confirmar: ""
   });
-  const [mensagem, setMensagem] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,37 +30,36 @@ export default function Home() {
   }
 
   function validarEmail(email) {
-    return validator.isEmail(email)
+    return validator.isEmail(email);
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMensagem("");
 
     if (!isLogin) {
       if (!validarNome(formData.nome)) {
-        setMensagem("O nome não deve conter números ou caracteres especiais.");
+        toast.error("O nome não deve conter números ou caracteres especiais.");
         setIsLoading(false);
         return;
       }
     }
 
     if (!validarEmail(formData.email)) {
-      setMensagem('Email inválido')
-      setIsLoading(false)
+      toast.error('Email inválido');
+      setIsLoading(false);
       return;
     }
 
     if (!isLogin && formData.senha !== formData.confirmar) {
-      setMensagem("As senhas não coincidem, tente novamente.");
+      toast.error("As senhas não coincidem, tente novamente.");
       setIsLoading(false);
       return;
     }
 
     if (!isLogin && formData.senha.length < 6) {
-      setMensagem('A senha deve conter no mínimo 6 caracteres, crie uma senha maior')
-      setIsLoading(false)
+      toast.error('A senha deve conter no mínimo 6 caracteres, crie uma senha maior');
+      setIsLoading(false);
       return;
     }
 
@@ -75,9 +75,8 @@ export default function Home() {
 
       const data = await response.json();
 
-
       if (response.ok) {
-        setMensagem(isLogin ? "Login realizado com sucesso! Entrando no olimpo..." : "Cadastro realizado com sucesso! Faça seu login!");
+        toast.success(isLogin ? "Login realizado com sucesso! Entrando no olimpo..." : "Cadastro realizado com sucesso! Faça seu login!");
 
         if (isLogin && data.token) {
           localStorage.setItem("token", data.token);
@@ -95,11 +94,11 @@ export default function Home() {
           });
         }
       } else {
-        setMensagem(data.err || `Erro no ${isLogin ? "login" : "cadastro"}`);
+        toast.error(data.err || `Erro no ${isLogin ? "login" : "cadastro"}`);
       }
     } catch (err) {
       console.error("Erro na requisição:", err);
-      setMensagem("Erro na comunicação com o servidor.");
+      toast.error("Erro na comunicação com o servidor.");
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +110,16 @@ export default function Home() {
         <title>{isLogin ? "Login" : "Cadastro"} | Portal dos Deuses</title>
         <meta name="theme-color" content="#111827" />
       </Head>
+
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          className: 'mt-4 p-3 text-lg rounded-lg bg-red-600/50 text-red-100 animate-pulse',
+          success: {
+            className: 'mt-4 p-3 text-lg rounded-lg bg-green-600/20 text-green-200 animate-pulse'
+          }
+        }}
+      />
 
       <div
         className={`relative border rounded-3xl shadow-2xl p-10 w-full max-w-md text-center backdrop-blur-x5 transition-all duration-700
@@ -143,7 +152,6 @@ export default function Home() {
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
-
                 placeholder="Seu nome completo"
                 className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
               />
@@ -173,7 +181,6 @@ export default function Home() {
               name="senha"
               value={formData.senha}
               onChange={handleChange}
-
               placeholder="********"
               className="input-field p-2 w-full rounded-lg border border-neutral-400/30"
             />
@@ -194,7 +201,7 @@ export default function Home() {
               />
             </div>
           )}
-          
+
           <button
             type="submit"
             disabled={isLoading}
@@ -228,28 +235,30 @@ export default function Home() {
           </button>
         </form>
 
-        {mensagem && (
-          <div
-            className={`mt-4 p-3 text-lg rounded-lg ${mensagem.includes("sucesso")
-              ? "bg-green-600/20 text-green-200"
-              : "bg-red-600/50 text-red-100"
-              } animate-pulse`}
-          >
-            {mensagem}
-          </div>
-        )}
-
         <div className="absolute top-1/2 -right-8 transform -translate-y-1/2">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-transform duration-500 hover:rotate-180 hover:scale-125 ${isLogin ? "" : "rotate-90"
-              }`}
-          >
-            <FiArrowUp
-              className={`text-white text-xl transition-transform duration-500 ${!isLogin ? "rotate-90" : "rotate-0"
+          <div className="relative">
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-all duration-500 hover:rotate-180 hover:scale-125 ${isLogin ? "" : "rotate-90"
                 }`}
-            />
-          </button>
+            >
+              <FiArrowUp
+                className={`text-white text-xl transition-transform duration-500 ${!isLogin ? "rotate-90" : "rotate-0"
+                  }`}
+              />
+            </button>
+
+            {showTooltip && (
+              <div className="absolute right-full top-1/2 transform -translate-y-1/2 mr-3">
+                <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                  Faça cadastro!
+                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-t-transparent border-b-transparent border-l-orange-700"></div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
