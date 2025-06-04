@@ -83,7 +83,7 @@ export default function HeaderHome() {
         "
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-      >
+      />
         <AnimatePresence>
           {isHovered && (
             <motion.span
@@ -161,6 +161,7 @@ export default function HeaderHome() {
           </Link>
         </motion.div>
       </nav>
+    </motion.span>
     </motion.header>
   );
 }
