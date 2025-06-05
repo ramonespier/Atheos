@@ -21,17 +21,23 @@ const Footer = () => {
             Links Úteis
           </h3>
           <ul className="space-y-3 text-sm">
-            {['Home', 'Sobre', 'Contato', 'Blog'].map((item, idx) => (
-              <li key={idx}>
-                <a
-                  href={`/${item.toLowerCase()}`}
-                  className="hover:text-orange-500 hover:underline hover:scale-105 transition-all duration-300 inline-block"
-                >
-                  {item}
-                </a>
-              </li>
-            ))}
+            
+            {['Home', 'Utilização', 'Cadastre', 'Depoimentos'].map((item, idx) => {
+              // Converte o nome em ID compatível: tudo minúsculo, espaços em hífens
+              const id = item.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+              return (
+                <li key={idx}>
+                  <a
+                    href={`#${id.toLowerCase()}`}
+                    className="hover:text-orange-500 hover:underline hover:scale-105 transition-all duration-300 inline-block"
+                  >
+                    {item}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
+
         </div>
 
         {/* Coluna 3 */}

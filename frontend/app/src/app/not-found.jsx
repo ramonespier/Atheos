@@ -14,7 +14,13 @@ export default function NotFound() {
                     Mas não tema, o caminho de volta está <a className="text-yellow-400" href="/dashboard">logo aqui embaixo</a>." <br />
                     - Hermes
                 </p>
-                <Link href="/dashboard" className="inline-block px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-400"> Retornar ao Dashboard </Link>
+                <div className="">
+                    <Link href="/dashboard" className="inline-block px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-400"> Retornar ao Dashboard </Link>
+                </div>
+                <div className="mt-5">
+
+                    <Link href="/" className="inline-block px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-400"> Retornar a Home </Link>
+                </div>
             </div>
         </div>
     );

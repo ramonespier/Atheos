@@ -91,7 +91,7 @@ export default function Informacoes() {
                                 />
                             </div>
                             <h3 className="text-2xl font-semibold mb-3 text-yellow-300 drop-shadow-md">{titulo}</h3>
-                            <p className="text-neutral-200 text-sm leading-relaxed">{texto}</p>
+                            <p id="cadastre" className="text-neutral-200 text-sm leading-relaxed">{texto}</p>
                         </article>
                     ))}
                 </div>
