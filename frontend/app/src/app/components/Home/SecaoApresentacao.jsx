@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 export default function SecaoApresentacao() {
   return (
-    <section className="flex justify-center py-20 md:px-0 px-7 bg-black text-white">
+    <section id="home" className="flex justify-center py-20 md:px-0 px-7 bg-black text-white">
       <div className="md:w-8/12 flex flex-col items-center justify-center gap-9">
 
         <h1
@@ -16,7 +16,7 @@ export default function SecaoApresentacao() {
             hover:drop-shadow-[0_0_18px_rgba(255,193,7,1)]
             transition-all duration-300
             cursor-pointer
-            active:scale-95
+            active:scale-95 mt-20
           "
         >
           Alcance a Sabedoria Financeira dos Deuses
@@ -51,7 +51,7 @@ export default function SecaoApresentacao() {
           aria-label="Imagem representativa do Olimpo"
         >
           <Image
-            src="/ImgOlimpo/olimpo.jpg"
+            src="/ImgOlimpo/olimpo.png"
             alt="Moeda Atheos"
             fill
             className="object-cover"
