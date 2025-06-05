@@ -3,7 +3,7 @@ import { read } from "../config/database.js"; // Supondo que exista readOne para
 
 const configController = async (req, res) => {
     try {
-        const usuarioId = req.usuarioId;
+        const usuarioId = req.params.id;
         const config = await read ('usuarios', `id = ${usuarioId}`);
 
         if (!config) {
@@ -19,15 +19,17 @@ const configController = async (req, res) => {
 
 const atualizarUsuariosController = async (req, res) => {
     try {
-        const usuarioId = req.usuarioId;
-        const { nome, email } = req.body;
-        const usuarioData = { 
+
+        const usuarioId = req.params.id;
+        const { nome, email, senha } = req.body;
+        const configData = { 
             nome: nome, 
-            email: email 
+            email: email,
+            senha: senha
         }
 
-        await atualizarUsuarios(usuarioId, usuarioData);
-        res.status(200).json({ message: 'Nome e email atualizados com sucesso!', usuarioId });
+        await atualizarUsuarios(usuarioId, configData);
+        res.status(200).json({ message: 'Dados atualizados com sucesso!', usuarioId });
     } catch (err) {
         console.error('Erro ao atualizar o nome e email:', err);
         res.status(500).json({ message: 'Erro ao atualizar o nome e email.', err });

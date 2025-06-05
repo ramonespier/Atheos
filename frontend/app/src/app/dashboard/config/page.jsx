@@ -27,25 +27,26 @@ export default function Config() {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify()
     })
-    .then(res => {
-      if (!res.ok) throw new Error('Falha na autenticação');
-      return res.json();
-    })
-    .then(data => {
-      setUsuario(data);
-      setFormData({
-        nome: data.nome || "",
-        email: data.email || "",
-        senha: "",
-        confirma: ""
+      .then(res => {
+        if (!res.ok) throw new Error('Falha na autenticação');
+        return res.json();
+      })
+      .then(data => {
+          setUsuario(data);
+          setFormData({
+            nome: data.nome || "",
+            email: data.email || "",
+            senha: "",
+            confirma: ""
+          })
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        router.push('/login');
       });
-    })
-    .catch(err => {
-      console.error('Erro:', err);
-      router.push('/login');
-    });
   }, []);
 
   const handleChange = (e) => {
@@ -124,16 +125,22 @@ export default function Config() {
         setUsuario(prev => ({ ...prev, ...dadosParaEnviar }));
         setEditMode(false);
         setFormData(prev => ({
-          ...prev,
-          senha: "",
-          confirma: ""
+          ...prev, 
+          nome: formData.nome,
+          email: formData.email
         }));
       } else {
-        setMensagem(data.err || "Erro ao salvar alterações.");
+
+      const errorMessage = typeof data.err === 'object' 
+        ? JSON.stringify(data.err) 
+        : data.err || "Erro ao salvar alterações.";
+      setMensagem(errorMessage);
+
       }
+
     } catch (err) {
       console.error("Erro na requisição:", err);
-      setMensagem("Erro na comunicação com o servidor.");
+      setMensagem(err.message || "Erro na comunicação com o servidor.");
     } finally {
       setIsLoading(false);
     }
@@ -144,13 +151,13 @@ export default function Config() {
       <Sidebar />
       <main className="flex-1 bg-gradient-to-br from-black via-[#0a0a0a] to-[#121212] min-h-screen flex flex-col">
         <Header />
-        <motion.div 
+        <motion.div
           className='p-6 flex-1 flex items-center justify-center'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <motion.div 
+          <motion.div
             className="w-full max-w-lg bg-[#0f0f0f] text-white p-8 rounded-3xl shadow-xl border border-[#1f1f1f] backdrop-blur-md"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
@@ -164,11 +171,10 @@ export default function Config() {
               <button
                 type="button"
                 onClick={toggleEditMode}
-                className={`px-5 py-2 rounded-xl font-semibold shadow-inner ${
-                  editMode
+                className={`px-5 py-2 rounded-xl font-semibold shadow-inner ${editMode
                     ? 'bg-gray-700 hover:bg-gray-600'
                     : 'bg-gradient-to-r from-orange-500 to-yellow-400 hover:from-orange-600 hover:to-yellow-500'
-                } text-black transition-all duration-300`}
+                  } text-black transition-all duration-300`}
               >
                 {editMode ? 'Cancelar' : 'Editar'}
               </button>
@@ -178,7 +184,7 @@ export default function Config() {
 
             <form className="space-y-6" onSubmit={editarPerfil}>
               {['nome', 'email', 'senha', 'confirma'].map((field, idx) => (
-                <motion.div 
+                <motion.div
                   key={field}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -211,9 +217,8 @@ export default function Config() {
 
               {mensagem && (
                 <motion.p
-                  className={`mt-4 text-center text-sm font-medium ${
-                    mensagem.includes("sucesso") ? "text-green-400" : "text-red-400"
-                  }`}
+                  className={`mt-4 text-center text-sm font-medium ${typeof mensagem === 'string' && mensagem.includes("salvas") ? "text-green-400" : "text-red-400"
+                    }`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
