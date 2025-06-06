@@ -5,8 +5,11 @@ import Head from "next/head";
 import { FiArrowUp } from "react-icons/fi";
 import validator from 'validator';
 import { toast, Toaster } from 'react-hot-toast';
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter()
+
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
@@ -82,7 +85,7 @@ export default function Home() {
           localStorage.setItem("token", data.token);
           console.log(data.token);
           setTimeout(() => {
-            window.location.href = "/dashboard";
+            router.push("/dashboard");
           }, 600);
         }
         if (!isLogin) {
