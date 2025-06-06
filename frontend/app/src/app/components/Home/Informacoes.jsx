@@ -1,101 +1,64 @@
+// components/Home/Informacoes.jsx (VERSÃO FINAL E CORRIGIDA)
 'use client'
-
-import Image from 'next/image'
+import ViewBasedAnimation from './ViewBasedAnimation';
+import { FiBarChart2, FiShield, FiTarget, FiSmartphone } from 'react-icons/fi';
+import { motion } from 'framer-motion'; // <-- AQUI ESTÁ A CORREÇÃO!
 
 export default function Informacoes() {
     const cards = [
         {
-            id: 1,
-            foto: '/PackAtheos/2.png',
+            icon: FiBarChart2,
             titulo: 'Controle Divino',
-            texto: 'Visualize suas finanças com clareza, como Zeus observando do Olimpo. Gráficos intuitivos e relatórios detalhados.',
-            cores: 'from-yellow-600/70 to-yellow-400/60 border-yellow-500/70',
-            sombra: 'drop-shadow-[0_0_15px_rgba(252,211,77,0.8)]'
+            texto: 'Visualize suas finanças com clareza. Gráficos intuitivos e relatórios detalhados como a visão de Zeus no Olimpo.',
         },
         {
-            id: 2,
-            foto: '/PackAtheos/2.png',
-            titulo: 'Orçamento Estratégico',
-            texto: 'Crie orçamentos flexíveis e acompanhe seus gastos com a precisão de um tridente de Poseidon.',
-            cores: 'from-blue-700/70 to-blue-500/60 border-blue-500/70',
-            sombra: 'drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]'
+            icon: FiSmartphone,
+            titulo: 'Acesso Celestial',
+            texto: 'Acesse de qualquer dispositivo. Sua jornada financeira na palma da sua mão, com a velocidade de Hermes.',
         },
         {
-            id: 3,
-            foto: '/PackAtheos/2.png',
-            titulo: 'Metas Inspiradoras',
-            texto: 'Defina e alcance seus objetivos financeiros com a sabedoria e estratégia de Atena.',
-            cores: 'from-neutral-700/70 to-neutral-500/60 border-neutral-400/70',
-            sombra: 'drop-shadow-[0_0_15px_rgba(107,114,128,0.8)]'
+            icon: FiTarget,
+            titulo: 'Metas Estratégicas',
+            texto: 'Defina e conquiste seus objetivos financeiros com a sabedoria e a estratégia de Atena.',
         },
         {
-            id: 4,
-            foto: '/PackAtheos/2.png',
-            titulo: 'Segurança Celestial',
-            texto: 'Seus dados protegidos com o mesmo zelo que Hermes guarda as mensagens dos deuses.',
-            cores: 'from-red-700/70 to-red-500/60 border-red-500/70',
-            sombra: 'drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]'
+            icon: FiShield,
+            titulo: 'Segurança Olímpica',
+            texto: 'Seus dados são um tesouro. Protegemos suas informações com a segurança do cofre de Hades.',
         }
-    ]
+    ];
 
     return (
-        <section
-            aria-labelledby="porque-atheos"
-            className="w-full py-20 px-5 md:px-20 bg-gradient-to-br from-neutral-900 via-black to-neutral-900 text-white"
-        >
-            <div className="max-w-7xl mx-auto flex flex-col items-center gap-14">
-                <h2
-                    id="porque-atheos"
-                    className="
-            text-6xl md:text-7xl font-extrabold tracking-tight select-none
-            bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-500
-            text-transparent bg-clip-text
-            drop-shadow-lg
-            cursor-default
-            uppercase
-            "
-                >
-                    Por que <span className="text-yellow-300">Atheos</span>?
-                </h2>
+        <section id="porque-atheos" className="w-full py-24 px-5 bg-black text-white">
+            <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
+                <ViewBasedAnimation>
+                    <h2 className="text-6xl md:text-7xl font-extrabold tracking-tight text-center bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 text-transparent bg-clip-text">
+                        Forjado para Campeões
+                    </h2>
+                    <p className="text-lg md:text-xl max-w-3xl text-center text-slate-300 mt-4">
+                        Construído com as melhores tecnologias para garantir poder, sabedoria e segurança em sua jornada financeira.
+                    </p>
+                </ViewBasedAnimation>
 
-                <p className="text-lg md:text-xl max-w-3xl text-center text-yellow-100/80 leading-relaxed font-light tracking-wide">
-                    Inspirado nos deuses do Olimpo, feito pra mortais que querem dominar suas finanças com poder e sabedoria. Aqui o controle é real e a segurança, divina.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 w-full">
-                    {cards.map(({ id, foto, titulo, texto, cores, sombra }) => (
-                        <article
-                            key={id}
-                            className={`
-                flex flex-col items-center text-center
-                rounded-xl border-2 p-8
-                bg-gradient-to-tr ${cores}
-                border-opacity-60
-                shadow-xl
-                hover:scale-[1.06] hover:brightness-110
-                transition-transform duration-300 ease-in-out
-                cursor-pointer
-                ${sombra}
-              `}
-                            tabIndex={0}
-                            aria-label={`Card informativo sobre ${titulo}`}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+                    {cards.map(({ icon: Icon, titulo, texto }, index) => (
+                        <motion.div
+                            key={titulo}
+                            initial={{ opacity: 0, y: 50 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.5 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="group relative p-8 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-orange-500/50 transition-colors"
                         >
-                            <div className="relative w-24 h-24 mb-6 mx-auto rounded-full bg-black/40 shadow-md overflow-hidden">
-                                <Image
-                                    src={foto}
-                                    alt={`${titulo} ícone`}
-                                    fill
-                                    sizes="96px"
-                                    className="object-contain"
-                                    priority
-                                />
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-orange-500/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                            <div className="relative z-10">
+                                <Icon className="w-10 h-10 mb-6 text-orange-400" />
+                                <h3 className="text-2xl font-semibold mb-3 text-slate-100">{titulo}</h3>
+                                <p className="text-slate-400 text-sm leading-relaxed">{texto}</p>
                             </div>
-                            <h3 className="text-2xl font-semibold mb-3 text-yellow-300 drop-shadow-md">{titulo}</h3>
-                            <p id="cadastre" className="text-neutral-200 text-sm leading-relaxed">{texto}</p>
-                        </article>
+                        </motion.div>
                     ))}
                 </div>
-
             </div>
         </section>
     )

@@ -1,4 +1,5 @@
-"use client"
+// app/page.js (VERSÃO FINAL E SIMPLES)
+"use client";
 import HeaderHome from "./components/Home/HeaderHome.jsx";
 import Informacoes from "./components/Home/Informacoes.jsx";
 import SecaoApresentacao from "./components/Home/SecaoApresentacao.jsx";
@@ -8,13 +9,15 @@ import Rodape from "./components/Home/Rodape.jsx";
 
 export default function Home() {
   return (
-    <div>
+    <div className="bg-black">
       <HeaderHome />
-      <SecaoApresentacao />
-      <Informacoes />
-      <BannerChamada />
-      <Depoimentos />
+      <main>
+        <SecaoApresentacao />
+        <Informacoes />
+        <BannerChamada />
+        <Depoimentos />
+      </main>
       <Rodape />
     </div>
-  )
+  );
 }

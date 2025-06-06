@@ -1,66 +1,56 @@
+// components/Home/SecaoApresentacao.jsx
 'use client'
-
-import Image from 'next/image'
+import { motion, useScroll, useTransform } from 'framer-motion';
+import ViewBasedAnimation from './ViewBasedAnimation';
 
 export default function SecaoApresentacao() {
-  return (
-    <section id="home" className="flex justify-center py-20 md:px-0 px-7 bg-black text-white">
-      <div className="md:w-8/12 flex flex-col items-center justify-center gap-9">
+  const { scrollYProgress } = useScroll();
+  // y1 move mais rápido (texto), y2 move mais devagar (fundo)
+  const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
+  const y2 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-        <h1
-          id="sabedoria"
-          className="
-            md:text-7xl text-5xl text-center font-extrabold tracking-wide select-none
-            bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-700
-            text-transparent bg-clip-text drop-shadow-[0_0_10px_rgba(255,193,7,0.8)]
-            hover:drop-shadow-[0_0_18px_rgba(255,193,7,1)]
-            transition-all duration-300
-            cursor-pointer
-            active:scale-95 mt-20
-          "
+  return (
+    <section id="home" className="relative h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+      {/* Background com Efeito Parallax */}
+      <motion.div
+        style={{ y: y2 }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+        style={{ backgroundImage: "url('/ImgOlimpo/olimpo.png')", y: y2 }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
+
+      {/* Conteúdo */}
+      <div className="relative z-10 flex flex-col items-center gap-9 text-center px-7">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          style={{ y: y1 }}
+          className="md:text-7xl text-5xl font-extrabold tracking-wide select-none bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(252,211,77,0.6)]"
         >
           Alcance a Sabedoria Financeira dos Deuses
-        </h1>
-
-        <p className="text-xl text-center text-neutral-100/70 max-w-2xl">
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          style={{ y: y1 }}
+          className="text-xl text-neutral-200/80 max-w-3xl"
+        >
           Atheos é seu guia divino para conquistar a prosperidade. Domine suas finanças com ferramentas poderosas e a inspiração da mitologia grega.
-        </p>
-
-        <a
-          href="/login"
-          className="
-            inline-block bg-gradient-to-r from-yellow-600 to-yellow-400 text-black font-semibold
-            py-3 px-6 rounded-xl shadow-lg
-            hover:scale-105 hover:shadow-yellow-500/50
-            transition-transform duration-300
-            ring-2 ring-yellow-800/50
-            drop-shadow-[0_0_10px_rgba(255,193,7,0.5)]
-          "
+        </motion.p>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          style={{ y: y1 }}
         >
-          Inicie sua Jornada Divina
-        </a>
-
-        <div
-          className="
-          relative rounded-full overflow-hidden 
-          w-52 h-52 md:w-64 md:h-64 
-          ring-4 ring-yellow-700/60 shadow-xl 
-          hover:scale-105 transition-transform duration-300 ease-in-out
-        bg-black/10
-          "
-          aria-label="Imagem representativa do Olimpo"
-        >
-          <Image
-            src="/ImgOlimpo/olimpo.png"
-            alt="Moeda Atheos"
-            fill
-            className="object-cover"
-            sizes="(min-width: 768px) 16rem, 13rem"
-            priority
-          />
-        </div>
-
-
+          <a href="/login" className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold py-4 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-yellow-500/50 transition-all">
+            Inicie sua Jornada Divina
+          </a>
+        </motion.div>
       </div>
     </section>
   )
