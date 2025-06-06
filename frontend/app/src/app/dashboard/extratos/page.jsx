@@ -1,59 +1,58 @@
-"use client"
-import { useEffect, useState } from "react";
+// /app/dashboard/extratos/page.js (VERSÃO FINAL - CORREÇÃO DE SINTAXE)
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from 'react-hot-toast';
+import { FiEdit2, FiTrash2, FiX, FiPlus, FiLoader, FiAlertTriangle, FiCheckCircle, FiChevronDown, FiInfo, FiSearch, FiTrendingUp, FiTrendingDown, FiArchive } from "react-icons/fi";
+import clsx from 'clsx';
+
+// Componentes
 import Sidebar from '../../components/DashBoard/Sidebar';
 import Header from '../../components/DashBoard/Header';
 import Footer from '../../components/DashBoard/Footer.jsx';
-import { useRouter } from "next/navigation";
-import {
-  FiEdit2, FiTrash2, FiX, FiPlusCircle, FiLoader,
-  FiAlertTriangle, FiCheckCircle, FiChevronDown, FiInfo
-} from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion";
-import toast, { Toaster } from 'react-hot-toast'; // Importação do react-hot-toast
 
-// ... (suas variantes de animação e constantes de estilo base permanecem as mesmas) ...
-const containerVariants = { /* ... */ };
-const itemVariants = { /* ... */ };
-const modalVariants = { /* ... */ };
-const inputFocusEffect = "focus:ring-2 focus:ring-orange-500 focus:ring-opacity-75 focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.5)]";
-const baseInputStyle = `w-full px-4 py-3 bg-slate-800/60 backdrop-blur-sm text-slate-100 rounded-xl border border-slate-700/80 placeholder-slate-500 transition-all duration-300 ease-in-out shadow-inner focus:outline-none`;
-const buttonBaseStyle = `font-semibold tracking-wider py-3 px-6 rounded-xl transition-all duration-300 ease-in-out transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900`;
-const primaryButtonStyle = `${buttonBaseStyle} bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-orange-500/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none`;
-const secondaryButtonStyle = `${buttonBaseStyle} bg-slate-700/80 hover:bg-slate-600/90 text-slate-200 shadow-md hover:shadow-slate-600/30 active:scale-95`;
+// =================================================================================
+// LÓGICA FUNCIONAL (CORRETA)
+// =================================================================================
 
-
-// Estilos customizados para os Toasts
-const toastBaseStyle = "flex items-center space-x-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-lg border text-sm font-medium";
-const successToastStyle = `${toastBaseStyle} bg-green-600/20 border-green-500/50 text-green-300`;
-const errorToastStyle = `${toastBaseStyle} bg-red-600/20 border-red-500/50 text-red-300`;
-const infoToastStyle = `${toastBaseStyle} bg-sky-600/20 border-sky-500/50 text-sky-300`;
-const loadingToastStyle = `${toastBaseStyle} bg-slate-700/30 border-slate-600/50 text-slate-300`;
-
+const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
+const modalVariants = { hidden: { scale: 0.95, y: 20 }, visible: { scale: 1, y: 0 }, exit: { scale: 0.95, y: 20 } };
 
 export default function Extratos() {
   const router = useRouter();
+  
+  // Estados de dados e UI
   const [usuario, setUsuario] = useState({});
-  const [transferencias, setTransferencias] = useState([]);
-  const [globalError, setGlobalError] = useState(null); // Renomeado para clareza
-  const [editTransferencia, setEditTransferencia] = useState(null);
-  const [mostrarEditor, setMostrarEditor] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(false); // Para carregamento inicial de dados
+  const [transacoes, setTransacoes] = useState([]);
+  const [editTransacao, setEditTransacao] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
+  
+  // Estados de Ação
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  
+  // Estados de Filtro/Busca
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const buscarTransferencias = async () => {
     const token = localStorage.getItem('token');
     setIsLoadingData(true);
     try {
       const resposta = await fetch('http://localhost:3001/usuario/dashboard/extratos', {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!resposta.ok) throw new Error('Falha ao carregar transferências.');
+      if (!resposta.ok) throw new Error('Falha ao carregar transações.');
       const dadosTransferencias = await resposta.json();
-      setTransferencias(dadosTransferencias.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
+      setTransacoes(dadosTransferencias.sort((a, b) => new Date(b.data) - new Date(a.data)));
       setGlobalError(null);
     } catch (error) {
-      setGlobalError(error.message); // Erro global para falha no carregamento de dados
-      toast.error(`Erro ao buscar dados: ${error.message}`, { className: errorToastStyle, icon: <FiAlertTriangle size={20} /> });
+      setGlobalError(error.message);
+      toast.error(`Erro ao buscar dados: ${error.message}`);
     } finally {
       setIsLoadingData(false);
     }
@@ -68,7 +67,7 @@ export default function Extratos() {
     const buscarUsuario = async () => {
       try {
         const resposta = await fetch('http://localhost:3001/usuario/autenticado', {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!resposta.ok) throw new Error('Sessão expirada ou inválida. Faça login novamente.');
         const dadosUsuario = await resposta.json();
@@ -76,24 +75,9 @@ export default function Extratos() {
         await buscarTransferencias();
       } catch (error) {
         setGlobalError(error.message);
-        if (error.message.toLowerCase().includes("expirada") || error.message.toLowerCase().includes("autenticado")) {
-          toast(
-            (t) => (
-              <div className={`${infoToastStyle} justify-between w-full max-w-sm`}>
-                <div className="flex items-center">
-                  <FiInfo size={20} className="mr-2"/>
-                  <span>{error.message} Redirecionando...</span>
-                </div>
-                <button onClick={() => toast.dismiss(t.id)} className="p-1 rounded-full hover:bg-sky-500/20">
-                  <FiX size={18} />
-                </button>
-              </div>
-            ),
-            { duration: 4000 }
-          );
+        if (error.message.toLowerCase().includes("expirada") || error.message.toLowerCase().includes("inválida")) {
+          toast.error(error.message + " Redirecionando...");
           setTimeout(() => router.push('/login'), 2000);
-        } else {
-          toast.error(`Erro de autenticação: ${error.message}`, { className: errorToastStyle, icon: <FiAlertTriangle size={20} /> });
         }
       }
     };
@@ -101,43 +85,34 @@ export default function Extratos() {
   }, [router]);
 
   const validarValor = (valorStr) => {
-    const valor = valorStr.replace(',', '.');
-    if (valor.length > 10) {
-      return { isValid: false, message: 'O valor não pode exceder 10 caracteres.' };
-    }
+    const valor = String(valorStr).replace(',', '.');
+    if (valor.length > 10) return { isValid: false, message: 'Valor excede 10 caracteres.' };
     const partes = valor.split('.');
-    if (partes.length > 1 && partes[1].length > 2) {
-      return { isValid: false, message: 'Use no máximo 2 casas decimais para o valor.' };
-    }
+    if (partes.length > 1 && partes[1].length > 2) return { isValid: false, message: 'Use no máximo 2 casas decimais.' };
     const numValor = parseFloat(valor);
-    if (isNaN(numValor) || numValor <= 0) { // Geralmente transferências devem ser > 0
-        return { isValid: false, message: 'Valor inválido. Insira um número positivo maior que zero.' };
-    }
+    if (isNaN(numValor) || numValor <= 0) return { isValid: false, message: 'Valor deve ser um número positivo.' };
     return { isValid: true, message: '' };
   };
 
-  const handleFormSubmit = async (evento, method, url, isEdit = false) => {
+  const handleFormSubmit = async (evento, isEdit = false) => {
     evento.preventDefault();
     const token = localStorage.getItem('token');
     setIsSubmitting(true);
-    setGlobalError(null); // Limpa erro global ao tentar nova submissão
+    setGlobalError(null);
 
-    const toastId = toast.loading(isEdit ? 'Salvando alterações...' : 'Adicionando transferência...', {
-      className: loadingToastStyle,
-      icon: <FiLoader className="animate-spin" size={20} />
-    });
+    const idTransacao = isEdit ? editTransacao.id : null;
+    const url = isEdit ? `http://localhost:3001/usuario/dashboard/extratos/${idTransacao}` : 'http://localhost:3001/usuario/dashboard/extratos';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    const toastId = toast.loading(isEdit ? 'Salvando...' : 'Adicionando...');
 
     try {
       const formData = new FormData(evento.target);
       const dados = Object.fromEntries(formData);
       
-      const valorValidacao = validarValor(dados.valor.toString());
-      if (!valorValidacao.isValid) {
-        toast.error(valorValidacao.message, { id: toastId, className: errorToastStyle, icon: <FiAlertTriangle size={20} /> });
-        setIsSubmitting(false);
-        return;
-      }
-      dados.valor = parseFloat(dados.valor.toString().replace(',', '.'));
+      const valorValidacao = validarValor(dados.valor);
+      if (!valorValidacao.isValid) throw new Error(valorValidacao.message);
+      dados.valor = parseFloat(String(dados.valor).replace(',', '.'));
 
       const resposta = await fetch(url, {
         method: method,
@@ -147,339 +122,174 @@ export default function Extratos() {
 
       if (!resposta.ok) {
         const errorData = await resposta.json().catch(() => ({ message: `Erro ${resposta.status}` }));
-        throw new Error(errorData.message || `Erro ao ${isEdit ? 'editar' : 'adicionar'} transferência.`);
+        throw new Error(errorData.message || 'Falha na operação.');
       }
 
-      await buscarTransferencias(); // Recarrega a lista
-      toast.success(`${isEdit ? 'Transferência editada' : 'Transferência adicionada'} com sucesso!`, {
-        id: toastId,
-        className: successToastStyle,
-        icon: <FiCheckCircle size={20} />,
-      });
-      if (!isEdit) evento.target.reset();
+      await buscarTransferencias();
+      toast.success(isEdit ? 'Transação editada!' : 'Transação adicionada!', { id: toastId });
+      
       if (isEdit) fecharModalEdicao();
+      else {
+        setShowForm(false);
+        evento.target.reset();
+      }
     } catch (error) {
-      toast.error(`Falha na operação: ${error.message}`, {
-        id: toastId,
-        className: errorToastStyle,
-        icon: <FiAlertTriangle size={20} />,
-      });
+      toast.error(`Erro: ${error.message}`, { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const adicionarTransferencia = (e) => handleFormSubmit(e, 'POST', 'http://localhost:3001/usuario/dashboard/extratos');
-  const editarTransferenciaSubmit = (e) => handleFormSubmit(e, 'PUT', `http://localhost:3001/usuario/dashboard/extratos/${editTransferencia.id}`, true);
-
-  const excluirTransferencia = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta transferência? Esta ação é irreversível.")) return;
-
+  const excluirTransacao = async (id) => {
+    if (!window.confirm("Tem certeza que deseja excluir? A ação é irreversível.")) return;
     const token = localStorage.getItem('token');
-    setGlobalError(null);
-    const toastId = toast.loading('Excluindo transferência...', {
-      className: loadingToastStyle,
-      icon: <FiLoader className="animate-spin" size={20} />
-    });
-
-    setIsSubmitting(true); // Usar isSubmitting para desabilitar outros botões se necessário
+    const toastId = toast.loading('Excluindo...');
+    setIsSubmitting(true);
     try {
       const resposta = await fetch(`http://localhost:3001/usuario/dashboard/extratos/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!resposta.ok) throw new Error('Erro ao excluir transferência.');
-      setTransferencias(prev => prev.filter(transf => transf.id !== id));
-      toast.success('Transferência excluída com sucesso!', {
-        id: toastId,
-        className: successToastStyle,
-        icon: <FiCheckCircle size={20} />,
-      });
+      if (!resposta.ok) throw new Error('Erro ao excluir.');
+      setTransacoes(prev => prev.filter(t => t.id !== id));
+      toast.success('Excluído com sucesso!', { id: toastId });
     } catch (error) {
-      toast.error(`Erro ao excluir: ${error.message}`, {
-        id: toastId,
-        className: errorToastStyle,
-        icon: <FiAlertTriangle size={20} />,
-      });
+      toast.error(`Erro: ${error.message}`, { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const abrirModalEdicao = (transferencia) => {
-    setEditTransferencia({ ...transferencia, valor: Number(transferencia.valor).toFixed(2).replace('.',',') }); // Formata para vírgula no modal
-    setMostrarEditor(true);
-    setGlobalError(null);
+  const abrirModalEdicao = (transacao) => {
+    setEditTransacao({ ...transacao, valor: String(transacao.valor).replace('.', ',') });
   };
 
-  const fecharModalEdicao = () => {
-    setEditTransferencia(null);
-    setMostrarEditor(false);
-    // Não limpar globalError aqui, pois pode ser um erro não relacionado ao modal
-  };
+  const fecharModalEdicao = () => setEditTransacao(null);
   
-  const formatCurrency = (value) => {
-    return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  };
+  const formatCurrency = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const transacoesAgrupadas = useMemo(() => {
+    const filtradas = transacoes
+      .filter(t => filter === 'all' || t.tipo === filter)
+      .filter(t => t.nome.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    return filtradas.reduce((acc, t) => {
+      const data = new Date(t.data);
+      const hoje = new Date();
+      const ontem = new Date();
+      ontem.setDate(hoje.getDate() - 1);
+      
+      let grupo = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      grupo = grupo.charAt(0).toUpperCase() + grupo.slice(1);
+
+      if (data.toDateString() === hoje.toDateString()) grupo = 'Hoje';
+      if (data.toDateString() === ontem.toDateString()) grupo = 'Ontem';
+
+      if (!acc[grupo]) acc[grupo] = [];
+      acc[grupo].push(t);
+      return acc;
+    }, {});
+  }, [transacoes, filter, searchTerm]);
+
+// =================================================================================
+// RENDERIZAÇÃO MELHORADA
+// =================================================================================
 
   return (
-    <div className="flex font-sans bg-gradient-to-br from-slate-950 via-gray-900 to-black min-h-screen text-slate-100 selection:bg-orange-500 selection:text-white">
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        gutter={12}
-        containerClassName="mt-4 mr-4"
-        toastOptions={{
-          duration: 5000, // Duração padrão
-          // Estilos e classes aqui seriam globais, mas estamos aplicando por tipo de toast
-        }}
-      />
+    <div className="flex font-sans bg-slate-950 text-slate-100 min-h-screen">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_var(--x,_50%)_var(--y,_50%),_rgba(249,115,22,0.15),_transparent_30%)]" />
+      <Toaster position="bottom-right" toastOptions={{
+        className: "bg-slate-800 border border-slate-700 text-white",
+        success: { iconTheme: { primary: '#34d399', secondary: '#1e293b' } },
+        error: { iconTheme: { primary: '#f87171', secondary: '#1e293b' } },
+        loading: { iconTheme: { primary: '#f97316', secondary: '#1e293b' } },
+      }}/>
       <Sidebar />
-
-      <main className="flex-1 min-h-screen flex flex-col">
+      <main className="flex-1 flex flex-col">
         <Header usuario={usuario} />
         
-        <AnimatePresence>
-          {globalError && !mostrarEditor && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md"
-              role="alert"
-            >
-              <div className="bg-red-600/90 backdrop-blur-md text-white p-4 rounded-lg shadow-2xl flex items-center space-x-3 mx-4 sm:mx-0">
-                <FiAlertTriangle size={24} className="flex-shrink-0"/>
-                <span className="flex-grow">{globalError}</span>
-                <button onClick={() => setGlobalError(null)} className="p-1 rounded-full hover:bg-red-700/50" aria-label="Fechar alerta">
-                  <FiX size={20} />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="p-4 sm:p-6 lg:p-8 flex-1">
+          <div className="max-w-7xl mx-auto">
+            <header className="mb-8">
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-400">Gerenciador de Transações</h1>
+              <p className="text-slate-400 mt-1">Adicione, edite e visualize todas as suas movimentações financeiras.</p>
+            </header>
 
-        <motion.div 
-          className="p-4 sm:p-8 space-y-8 flex-1"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-          {/* Formulário de Nova Transferência */}
-          <motion.form
-            onSubmit={adicionarTransferencia}
-            variants={itemVariants}
-            className="bg-gradient-to-br from-slate-900/70 via-slate-800/60 to-orange-900/20 backdrop-blur-md p-6 sm:p-8 rounded-2xl max-w-2xl mx-auto border border-orange-600/30 shadow-2xl shadow-black/50"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 mb-6 sm:mb-8 tracking-tight flex items-center">
-              <FiPlusCircle className="mr-3 text-orange-500" size={28}/> Nova Transação Financeira
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-              <div className="md:col-span-2">
-                <label htmlFor="nome" className="block text-orange-300/90 mb-2 text-sm font-medium tracking-wide">Destinatário / Origem:</label>
-                <input type="text" id="nome" name="nome" required placeholder="Ex: Salário, Aluguel, Supermercado XPTO" className={`${baseInputStyle} ${inputFocusEffect}`} />
+            {/* BARRA DE FILTROS E AÇÕES */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-900/50 rounded-2xl border border-slate-700/80 mb-6">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setFilter('all')} className={clsx("px-4 py-2 rounded-lg text-sm font-semibold transition-colors", filter === 'all' ? "bg-orange-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-700")}>Todos</button>
+                <button onClick={() => setFilter('entrada')} className={clsx("px-4 py-2 rounded-lg text-sm font-semibold transition-colors", filter === 'entrada' ? "bg-green-600/50 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-700")}>Entradas</button>
+                <button onClick={() => setFilter('saida')} className={clsx("px-4 py-2 rounded-lg text-sm font-semibold transition-colors", filter === 'saida' ? "bg-red-600/50 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-700")}>Saídas</button>
               </div>
-              <div>
-                <label htmlFor="tipo" className="block text-orange-300/90 mb-2 text-sm font-medium tracking-wide">Tipo:</label>
-                <div className="relative">
-                  <select name="tipo" id="tipo" className={`${baseInputStyle} ${inputFocusEffect} appearance-none pr-10`}>
-                    <option value="entrada" className="bg-slate-800">Entrada (Receita)</option>
-                    <option value="saida" className="bg-slate-800">Saída (Despesa)</option>
-                  </select>
-                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20}/>
-                </div>
-              </div>
-              <div>
-                <label htmlFor="valor" className="block text-orange-300/90 mb-2 text-sm font-medium tracking-wide">Valor (R$):</label>
-                <input type="text" name="valor" id="valor" inputMode="decimal" placeholder="0,00" required className={`${baseInputStyle} ${inputFocusEffect}`} />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="descricao" className="block text-orange-300/90 mb-2 text-sm font-medium tracking-wide">Descrição (Opcional):</label>
-                <textarea name="descricao" id="descricao" rows="3" maxLength={250} className={`${baseInputStyle} ${inputFocusEffect} min-h-[80px]`} placeholder="Detalhes adicionais sobre a transação..."/>
-              </div>
+              <div className="relative w-full sm:w-auto"><FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Buscar transação..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full sm:w-64 bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500" /></div>
+              <motion.button onClick={() => setShowForm(!showForm)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-orange-500/40 transition-shadow" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}><FiPlus />Nova Transação</motion.button>
             </div>
-            
-            <motion.button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full mt-8 ${primaryButtonStyle}`}
-              whileHover={{ scale: !isSubmitting ? 1.02 : 1 }}
-              whileTap={{ scale: !isSubmitting ? 0.98 : 1 }}
-            >
-              {isSubmitting && !editTransferencia ? ( // Diferencia o texto do botão para edição
-                <div className="flex items-center justify-center">
-                  <FiLoader className="animate-spin mr-2" size={20} />
-                  Adicionando...
-                </div>
-              ) : (
-                'Adicionar Transferência'
-              )}
-            </motion.button>
-          </motion.form>
 
-          {/* Lista de Transferências */}
-          <motion.section 
-            variants={itemVariants}
-            className="mt-10 sm:mt-16 max-w-5xl mx-auto"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-400 mb-6 sm:mb-8 tracking-tight">Meus Extratos Recentes</h2>
-
-            {isLoadingData && transferencias.length === 0 && (
-              <div className="flex flex-col items-center justify-center text-slate-400 h-40 bg-slate-800/30 rounded-xl border border-slate-700/50">
-                <FiLoader className="animate-spin text-orange-500 mb-3" size={32} />
-                Carregando suas transações...
-              </div>
-            )}
-            {!isLoadingData && transferencias.length === 0 && !globalError && ( // Adicionado !globalError para não mostrar msg de "nenhuma transferencia" se houver erro de carregamento
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center text-slate-400 py-10 bg-slate-800/30 rounded-xl border border-slate-700/50"
-              >
-                <FiInfo size={48} className="mx-auto mb-4 text-orange-500/70" /> {/* Trocado por FiInfo */}
-                <p className="text-xl">Nenhuma transferência encontrada.</p>
-                <p className="text-sm">Que tal adicionar sua primeira agora?</p>
-              </motion.div>
-            )}
-
+            {/* FORMULÁRIO DE ADIÇÃO (RECOLHÍVEL) */}
             <AnimatePresence>
-              {transferencias.length > 0 && (
-                <motion.ul 
-                  className="space-y-4"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {transferencias.map((transf) => (
-                    <motion.li
-                      key={transf.id}
-                      layout 
-                      variants={itemVariants} 
-                      initial="hidden" 
-                      animate="visible"
-                      exit={{ opacity: 0, x: -50, transition: { duration: 0.3 } }}
-                      className="bg-slate-800/70 backdrop-blur-sm rounded-xl p-4 sm:p-5 shadow-lg border border-slate-700/60 hover:border-orange-500/50 transition-colors duration-300 group"
-                    >
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                        <div className="flex-grow mb-3 sm:mb-0">
-                          <div className="flex items-center">
-                            <span className={`mr-2 h-3 w-3 rounded-full ${transf.tipo === 'entrada' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                            <p className="text-slate-100 font-semibold text-lg truncate max-w-[200px] sm:max-w-[300px] md:max-w-md" title={transf.nome}>{transf.nome}</p>
+              {showForm && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                      <form onSubmit={handleFormSubmit} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-700/80 mb-6 overflow-hidden">
+                          <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-orange-400">Adicionar Nova Transação</h3><button type="button" onClick={() => setShowForm(false)} className="p-1 text-slate-400 hover:text-white"><FiX /></button></div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="md:col-span-2"><label htmlFor="nome" className="text-sm font-medium text-slate-400 mb-1 block">Nome</label><input type="text" id="nome" name="nome" required placeholder="Ex: Salário" className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
+                              <div><label htmlFor="tipo" className="text-sm font-medium text-slate-400 mb-1 block">Tipo</label><div className="relative"><select name="tipo" id="tipo" defaultValue="saida" className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none appearance-none pr-10"><option value="saida" className="bg-slate-800">Saída (Despesa)</option><option value="entrada" className="bg-slate-800">Entrada (Receita)</option></select><FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" /></div></div>
+                              <div><label htmlFor="valor" className="text-sm font-medium text-slate-400 mb-1 block">Valor (R$)</label><input type="text" name="valor" id="valor" inputMode="decimal" placeholder="0,00" required className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
+                              <div className="md:col-span-2"><label htmlFor="descricao" className="text-sm font-medium text-slate-400 mb-1 block">Descrição</label><textarea name="descricao" id="descricao" rows="2" className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
                           </div>
-                          <p className={`text-sm font-medium ${transf.tipo === 'entrada' ? 'text-green-400' : 'text-red-400'}`}>
-                            {transf.tipo === 'entrada' ? 'Receita' : 'Despesa'} de {formatCurrency(transf.valor)}
-                          </p>
-                          {transf.descricao && (
-                            <p className="text-slate-400 text-xs mt-1 italic truncate max-w-[250px] sm:max-w-xs md:max-w-sm" title={transf.descricao}>{transf.descricao}</p>
-                          )}
-                           <p className="text-slate-500 text-xs mt-1">
-                            {new Date(transf.createdAt || transf.data || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                          </p>
-                        </div>
-                        <div className="flex space-x-3 items-center self-end sm:self-center opacity-70 group-hover:opacity-100 transition-opacity duration-300">
-                          <motion.button
-                            onClick={() => abrirModalEdicao(transf)}
-                            className="text-orange-400 hover:text-orange-300 p-2 rounded-full hover:bg-slate-700/50 transition-all"
-                            title="Editar"
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                            whileTap={{ scale: 0.9 }}
-                            disabled={isSubmitting} // Desabilita durante outras submissões
-                          >
-                            <FiEdit2 size={18} />
-                          </motion.button>
-                          <motion.button
-                            onClick={() => excluirTransferencia(transf.id)}
-                            className="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-slate-700/50 transition-all"
-                            title="Excluir"
-                            disabled={isSubmitting} // Desabilita durante outras submissões
-                            whileHover={{ scale: 1.1, rotate: -5 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <FiTrash2 size={18} />
-                          </motion.button>
-                        </div>
-                      </div>
-                    </motion.li>
-                  ))}
-                </motion.ul>
+                          <div className="flex justify-end mt-6"><motion.button type="submit" disabled={isSubmitting} className="font-semibold py-3 px-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg disabled:opacity-50" whileTap={{ scale: 0.95 }}>{isSubmitting ? <FiLoader className="animate-spin" /> : 'Adicionar'}</motion.button></div>
+                      </form>
+                  </motion.div>
               )}
             </AnimatePresence>
-          </motion.section>
 
-          {/* Modal de Edição */}
-          <AnimatePresence>
-            {mostrarEditor && editTransferencia && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
-                onClick={fecharModalEdicao}
-              >
-                <motion.form
-                  onSubmit={editarTransferenciaSubmit}
-                  variants={modalVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-6 sm:p-8 rounded-2xl max-w-md w-full border border-orange-600/50 shadow-2xl shadow-black/70 relative"
-                >
-                  <button type="button" onClick={fecharModalEdicao} className="absolute top-4 right-4 text-slate-400 hover:text-orange-400 p-2 rounded-full hover:bg-slate-700/50 transition-all" aria-label="Fechar modal">
-                    <FiX size={24}/>
-                  </button>
-                  <h2 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 mb-6 tracking-tight">
-                    Editar Transação
-                  </h2>
-                  {/* Erro específico do Modal (opcional, já que o toast é usado) */}
-                  {/* {globalError && mostrarEditor && ( ... ) } */}
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="nomeEdit" className="block text-orange-300/90 mb-1.5 text-sm font-medium">Destinatário / Origem:</label>
-                      <input type="text" id="nomeEdit" name="nome" defaultValue={editTransferencia.nome} required className={`${baseInputStyle} ${inputFocusEffect}`} />
-                    </div>
-                    <div>
-                      <label htmlFor="tipoEdit" className="block text-orange-300/90 mb-1.5 text-sm font-medium">Tipo:</label>
-                       <div className="relative">
-                        <select name="tipo" id="tipoEdit" defaultValue={editTransferencia.tipo} className={`${baseInputStyle} ${inputFocusEffect} appearance-none pr-10`}>
-                          <option value="entrada" className="bg-slate-800">Entrada (Receita)</option>
-                          <option value="saida" className="bg-slate-800">Saída (Despesa)</option>
-                        </select>
-                        <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20}/>
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="valorEdit" className="block text-orange-300/90 mb-1.5 text-sm font-medium">Valor (R$):</label>
-                      <input type="text" name="valor" id="valorEdit" inputMode="decimal" defaultValue={editTransferencia.valor} required className={`${baseInputStyle} ${inputFocusEffect}`} />
-                    </div>
-                    <div>
-                      <label htmlFor="descricaoEdit" className="block text-orange-300/90 mb-1.5 text-sm font-medium">Descrição:</label>
-                      <textarea name="descricao" id="descricaoEdit" rows="3" maxLength={250} defaultValue={editTransferencia.descricao} className={`${baseInputStyle} ${inputFocusEffect} min-h-[70px]`}/>
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-4 mt-8">
-                    <motion.button type="button" onClick={fecharModalEdicao} className={`${secondaryButtonStyle} px-5 py-2.5 text-sm`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                      Cancelar
-                    </motion.button>
-                    <motion.button type="submit" disabled={isSubmitting} className={`${primaryButtonStyle} px-5 py-2.5 text-sm`} whileHover={{ scale: !isSubmitting ? 1.03 : 1 }} whileTap={{ scale: !isSubmitting ? 0.97 : 1 }}>
-                      {isSubmitting ? (
-                        <div className="flex items-center justify-center">
-                          <FiLoader className="animate-spin mr-2" size={18} />
-                          Salvando...
-                        </div>
-                      ) : (
-                        'Salvar Alterações'
-                      )}
-                    </motion.button>
-                  </div>
-                </motion.form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+            {/* LISTA DE TRANSAÇÕES */}
+            <motion.div variants={containerVariants} initial="hidden" animate="visible">
+              {isLoadingData ? (
+                <div className="text-center py-16"><FiLoader className="animate-spin text-orange-500 mx-auto" size={48}/></div>
+              ) : Object.keys(transacoesAgrupadas).length > 0 ? (
+                Object.entries(transacoesAgrupadas).map(([grupo, items]) => (
+                  <section key={grupo} className="mb-8">
+                    <h2 className="text-sm font-semibold text-orange-400 uppercase tracking-wider pb-2 border-b border-slate-700 mb-4">{grupo}</h2>
+                    <ul className="space-y-3">
+                      <AnimatePresence>
+                        {items.map(t => (
+                          <motion.li key={t.id} layout variants={itemVariants} exit={{ opacity: 0, x: -30 }} className="group relative p-[2px] rounded-xl bg-slate-800/50"><div className="flex items-center justify-between p-4 rounded-[10px] bg-slate-900"><div className="flex items-center gap-4"><div className={clsx("w-10 h-10 rounded-lg flex items-center justify-center", t.tipo === 'entrada' ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400")}>{t.tipo === 'entrada' ? <FiTrendingUp /> : <FiTrendingDown />}</div><div><p className="font-semibold text-slate-100">{t.nome}</p><p className="text-xs text-slate-400">{new Date(t.data).toLocaleDateString('pt-BR')}</p></div></div><div className="flex items-center gap-6"><p className={clsx("font-bold text-lg", t.tipo === 'entrada' ? "text-green-400" : "text-red-400")}>{formatCurrency(t.valor)}</p><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button disabled={isSubmitting} onClick={() => abrirModalEdicao(t)} className="p-2 text-slate-400 hover:text-orange-400"><FiEdit2 /></button><button disabled={isSubmitting} onClick={() => excluirTransacao(t.id)} className="p-2 text-slate-400 hover:text-red-400"><FiTrash2 /></button></div></div></div><div className="absolute inset-0 rounded-xl bg-[conic-gradient(from_90deg_at_50%_50%,#f97316_0%,#1e293b_50%,#f97316_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" /></motion.li>
+                        ))}
+                      </AnimatePresence>
+                    </ul>
+                  </section>
+                ))
+              ) : (
+                <div className="text-center py-16 text-slate-500"><FiArchive size={48} className="mx-auto mb-4" /><p>Nenhuma transação encontrada.</p><p>Tente ajustar seus filtros ou adicione uma nova transação.</p></div>
+              )}
+            </motion.div>
+          </div>
+        </div>
         <Footer />
       </main>
+
+      {/* MODAL DE EDIÇÃO */}
+      <AnimatePresence>
+        {editTransacao && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[50] p-4" onClick={fecharModalEdicao}>
+            <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" onClick={(e) => e.stopPropagation()} className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6">
+              <form onSubmit={(e) => handleFormSubmit(e, true)}>
+                <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-orange-400">Editar Transação</h3><button type="button" onClick={fecharModalEdicao} className="p-1 text-slate-400 hover:text-white"><FiX /></button></div>
+                <div className="space-y-4">
+                  <div><label htmlFor="nomeEdit" className="text-sm font-medium text-slate-400 mb-1 block">Nome</label><input type="text" id="nomeEdit" name="nome" required defaultValue={editTransacao.nome} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
+                  <div><label htmlFor="tipoEdit" className="text-sm font-medium text-slate-400 mb-1 block">Tipo</label><div className="relative"><select name="tipo" id="tipoEdit" defaultValue={editTransacao.tipo} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none appearance-none pr-10"><option value="saida" className="bg-slate-800">Saída (Despesa)</option><option value="entrada" className="bg-slate-800">Entrada (Receita)</option></select><FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" /></div></div>
+                  <div><label htmlFor="valorEdit" className="text-sm font-medium text-slate-400 mb-1 block">Valor (R$)</label><input type="text" name="valor" id="valorEdit" inputMode="decimal" required defaultValue={editTransacao.valor} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
+                  {/* ** AQUI ESTÁ A CORREÇÃO ** */}
+                  <div><label htmlFor="descricaoEdit" className="text-sm font-medium text-slate-400 mb-1 block">Descrição</label><textarea name="descricao" id="descricaoEdit" rows="2" defaultValue={editTransacao.descricao} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
+                </div>
+                <div className="flex justify-end gap-4 mt-6"><button type="button" onClick={fecharModalEdicao} className="font-semibold py-2 px-5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200">Cancelar</button><motion.button type="submit" disabled={isSubmitting} className="font-semibold py-2 px-5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg disabled:opacity-50" whileTap={{ scale: 0.95 }}>{isSubmitting ? <FiLoader className="animate-spin" /> : 'Salvar'}</motion.button></div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
