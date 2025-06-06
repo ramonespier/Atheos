@@ -1,76 +1,87 @@
-// src/components/DashBoard/FinancialGoals.js
-import { motion } from "framer-motion";
-import { FiTarget } from "react-icons/fi";
-
-const sectionVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.5, ease: "easeInOut", staggerChildren: 0.08 } // Stagger menor
-  }
-};
-
-const goalItemVariants = {
-  hidden: { opacity: 0, x: -15 },
-  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 110 } } // Mola mais suave
-};
+// components/DashBoard/FinancialGoals.jsx (NOVA VERSÃO FUNCIONAL)
+"use client";
+import { useEffect, useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import GoalCard from '../Goals/GoalCard';
+import { FiTarget, FiLoader } from 'react-icons/fi';
 
 export default function FinancialGoals() {
-  const metas = [ // Dados de exemplo
-    { id: 'pc-gamer', objetivo: 'PC Gamer', progresso: 75 }, // Nome mais curto
-    { id: 'viagem-grecia', objetivo: 'Viagem Grécia', progresso: 50 },
-    { id: 'quitar-dividas', objetivo: 'Quitar Dívidas', progresso: 90 },
-  ];
+  const [metas, setMetas] = useState([]);
+  const [transacoes, setTransacoes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const fetchData = async () => {
+      try {
+        const [resMetas, resTransacoes] = await Promise.all([
+          fetch('http://localhost:3001/usuario/dashboard/metas', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('http://localhost:3001/usuario/dashboard/extratos', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        if (!resMetas.ok || !resTransacoes.ok) throw new Error("Falha ao carregar dados de metas.");
+        
+        const dataMetas = await resMetas.json();
+        const dataTransacoes = await resTransacoes.json();
+        setMetas(dataMetas);
+        setTransacoes(dataTransacoes);
+      } catch (error) {
+        console.error("Erro no componente FinancialGoals:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const metasDoMesAtual = useMemo(() => {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth() + 1;
+    const anoAtual = hoje.getFullYear();
+
+    return metas
+      .filter(meta => meta.mes === mesAtual && meta.ano === anoAtual)
+      .map(meta => {
+        const gastoAtual = transacoes
+          .filter(t => t.tipo === 'saida' && new Date(t.data).getMonth() + 1 === meta.mes && new Date(t.data).getFullYear() === meta.ano)
+          // Aqui você pode adicionar um filtro por categoria se suas metas forem por categoria
+          .reduce((acc, t) => acc + Number(t.valor), 0);
+        return { ...meta, gastoAtual };
+      });
+  }, [metas, transacoes]);
 
   return (
-    <motion.section 
-      variants={sectionVariants}
-      initial="hidden"
-      animate="visible"
-      className="
-        bg-gradient-to-tl from-slate-900/70 via-slate-800/60 to-orange-900/5
-        backdrop-blur-md text-slate-200 
-        p-4 sm:p-5 rounded-xl 
-        shadow-lg shadow-black/50 
-        border border-slate-700/40
-        hover:border-orange-500/30 transition-colors duration-200
-        flex-1
-      " // Paddings, rounded menores
-    >
-      <h3 className="
-        text-base sm:text-lg font-semibold mb-4 sm:mb-5 {/* Fonte e margem menores */}
-        text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500
-        flex items-center gap-1.5 {/* Gap menor */}
-      ">
-        <FiTarget className="text-orange-500" size={18} /> {/* Ícone menor */}
-        Metas Financeiras
-      </h3>
-
-      <div className="space-y-3 sm:space-y-4"> {/* Espaçamento menor */}
-        {metas.map((meta) => (
-          <motion.div 
-            key={meta.id}
-            variants={goalItemVariants}
-            className="group"
-          >
-            <div className="flex justify-between text-xs sm:text-sm mb-1 text-slate-300 group-hover:text-orange-300 transition-colors"> {/* Fonte menor */}
-              <span className="font-medium truncate max-w-[70%]">{meta.objetivo}</span> {/* Truncate e max-width */}
-              <span className="font-semibold">{meta.progresso}%</span>
-            </div>
-
-            <div className="w-full bg-slate-700/40 rounded-full h-2 overflow-hidden shadow-inner"> {/* Barra mais fina */}
-              <motion.div
-                className="bg-gradient-to-r from-orange-500 to-orange-600 h-full rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${meta.progresso}%` }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-                style={{ boxShadow: `0 0 6px rgba(249, 115, 22, ${meta.progresso / 250 + 0.05})` }} // Sombra mais sutil
-              />
-            </div>
-          </motion.div>
-        ))}
+    <div className="relative p-[2px] rounded-2xl bg-white/5 h-full">
+      <div className="bg-slate-950 p-6 rounded-[14px] h-full flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-200">Metas do Mês</h3>
+          <Link href="/dashboard/metas" className="text-sm text-orange-400 hover:underline">Ver todas</Link>
+        </div>
+        {isLoading ? (
+          <div className="flex-grow flex items-center justify-center"><FiLoader className="animate-spin text-orange-500" size={32}/></div>
+        ) : metasDoMesAtual.length > 0 ? (
+          <div className="flex-grow space-y-4 overflow-y-auto">
+            <AnimatePresence>
+              {metasDoMesAtual.map(meta => (
+                <GoalCard 
+                  key={meta.id} 
+                  meta={meta}
+                  gastoAtual={meta.gastoAtual}
+                  onEdit={() => {}} // Não editável no dashboard
+                  onDelete={() => {}} // Não deletável no dashboard
+                  isSubmitting={false}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="flex-grow flex flex-col items-center justify-center text-center text-slate-500">
+            <FiTarget size={40} className="mb-2"/>
+            <p>Nenhuma meta definida para este mês.</p>
+            <Link href="/dashboard/metas" className="text-orange-400 hover:underline mt-1 text-sm">Criar uma meta</Link>
+          </div>
+        )}
       </div>
-    </motion.section>
-  )
+    </div>
+  );
 }
