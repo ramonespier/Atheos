@@ -39,6 +39,7 @@ create table if not exists metas (
     ano SMALLINT NOT NULL CHECK (ano BETWEEN 2006 AND 2100),
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    investido decimal(12,2) not null default 0,
     
 	#######################################################################################################
     usuario_id int NOT NULL,

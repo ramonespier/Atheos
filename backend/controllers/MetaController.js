@@ -46,7 +46,7 @@ const atualizarMetasController = async (req, res) => {
             ano: ano
         }
         await atualizarMetas(metaId, metaData);
-        res.status(200).json({message: 'Erro ao atualizar a meta: ', metaId})
+        res.status(200).json({message: 'Sucesso ao atualizar a meta: ', metaId})
     } catch (err) {
         console.error('Erro ao atualizar o meta', err)
         res.status(500).json({message: 'Erro ao atualizar  o meta: ', err})
