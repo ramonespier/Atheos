@@ -29,7 +29,7 @@ export default function Informacoes() {
     ];
 
     return (
-        <section id="porque-atheos" className="w-full py-24 px-5 bg-black text-white">
+        <section id="destino" className="w-full py-24 px-5 bg-black text-white">
             <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
                 <ViewBasedAnimation>
                     <h2 className="text-6xl md:text-7xl font-extrabold tracking-tight text-center bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 text-transparent bg-clip-text">
@@ -54,7 +54,7 @@ export default function Informacoes() {
                             <div className="relative z-10">
                                 <Icon className="w-10 h-10 mb-6 text-orange-400" />
                                 <h3 className="text-2xl font-semibold mb-3 text-slate-100">{titulo}</h3>
-                                <p className="text-slate-400 text-sm leading-relaxed">{texto}</p>
+                                <p  id="cadastre" className="text-slate-400 text-sm leading-relaxed">{texto}</p>
                             </div>
                         </motion.div>
                     ))}
