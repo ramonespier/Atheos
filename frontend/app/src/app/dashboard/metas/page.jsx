@@ -20,9 +20,11 @@ export default function MetasPage() {
   const router = useRouter();
   const [usuario, setUsuario] = useState({});
   const [metas, setMetas] = useState([]);
-  const [transacoes, setTransacoes] = useState([]);
+
+  const [extrato, setExtrato] = useState({ saldo: 0, transacoes: [] })
   const [editMeta, setEditMeta] = useState(null);
-  
+  const [investimento, setInvestimento] = useState({ isOpen: false, meta: null, type: '' }) // type === investir ou retirar, no caso
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -31,16 +33,16 @@ export default function MetasPage() {
     const token = localStorage.getItem('token');
     setIsLoading(true);
     try {
-      const [resMetas, resTransacoes] = await Promise.all([
+      const [resMetas, resExtrato] = await Promise.all([
         fetch('http://localhost:3001/usuario/dashboard/metas', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('http://localhost:3001/usuario/dashboard/extratos', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
-      if (!resMetas.ok || !resTransacoes.ok) throw new Error("Falha ao carregar dados.");
-      
+      if (!resMetas.ok || !resExtrato.ok) throw new Error("Falha ao carregar dados.");
+
       const dataMetas = await resMetas.json();
-      const dataTransacoes = await resTransacoes.json();
-      setMetas(dataMetas.sort((a,b) => b.ano - a.ano || b.mes - a.mes));
-      setTransacoes(dataTransacoes);
+      const dataExtrato = await resExtrato.json();
+      setMetas(dataMetas.sort((a, b) => b.ano - a.ano || b.mes - a.mes));
+      setExtrato(dataExtrato);
     } catch (error) {
       toast.error(`Erro ao buscar dados: ${error.message}`);
     } finally {
@@ -56,7 +58,7 @@ export default function MetasPage() {
       .then(res => res.ok ? res.json() : Promise.reject('Sessão inválida'))
       .then(data => setUsuario(data))
       .catch(() => router.push('/login'));
-    
+
     fetchData();
   }, [router]);
 
@@ -67,11 +69,12 @@ export default function MetasPage() {
     const toastId = toast.loading(isEdit ? 'Salvando meta...' : 'Criando meta...');
 
     try {
+      await fetchData()
       const formData = new FormData(e.target);
       const dados = Object.fromEntries(formData);
       dados.valor_limite = parseFloat(String(dados.valor_limite).replace(',', '.'));
 
-      if(isNaN(dados.valor_limite) || dados.valor_limite <= 0) throw new Error("Valor limite inválido.");
+      if (isNaN(dados.valor_limite) || dados.valor_limite <= 0) throw new Error("Valor limite inválido.");
 
       const url = isEdit ? `http://localhost:3001/usuario/dashboard/metas/${editMeta.id}` : 'http://localhost:3001/usuario/dashboard/metas';
       const method = isEdit ? 'PUT' : 'POST';
@@ -89,7 +92,7 @@ export default function MetasPage() {
 
       await fetchData();
       toast.success(isEdit ? 'Meta atualizada!' : 'Meta criada!', { id: toastId });
-      
+
       if (isEdit) setEditMeta(null);
       else setShowForm(false);
 
@@ -99,7 +102,7 @@ export default function MetasPage() {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleDelete = async (id) => {
     if (!window.confirm("Tem certeza que deseja excluir esta meta?")) return;
     const token = localStorage.getItem('token');
@@ -110,22 +113,54 @@ export default function MetasPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Erro ao excluir.");
-      
-      await fetchData();
+
       toast.success('Meta excluída!', { id: toastId });
-    } catch(error) {
+    } catch (error) {
       toast.error(error.message, { id: toastId });
+    }
+    await fetchData();
+  };
+
+  const handleInvestmentSubmit = async (valor) => {
+    if (!investimento.isOpen || !investimento.meta) return;
+
+    const { meta, type } = investimento;
+    const token = localStorage.getItem('token');
+    setIsSubmitting(true);
+    const toastId = toast.loading(`${type === 'investir' ? 'Investindo' : 'Retirando'}...`);
+
+    try {
+      const url = `http://localhost:3001/usuario/dashboard/metas/${meta.id}/${type}`; // Ex: /metas/1/investir
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ valor: parseFloat(valor) })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.err || 'Ocorreu um erro na operação.');
+      }
+
+      toast.success('Operação realizada com sucesso!', { id: toastId });
+      setInvestimento({ isOpen: false, meta: null, type: '' });
+      await fetchData(); //carrega TODOS os dados (metas e saldo)
+    } catch (error) {
+      toast.error(error.message, { id: toastId });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const metasComProgresso = useMemo(() => {
-    return metas.map(meta => {
-      const gastoAtual = transacoes
-        .filter(t => t.tipo === 'saida' && new Date(t.data).getMonth() + 1 === meta.mes && new Date(t.data).getFullYear() === meta.ano)
-        .reduce((acc, t) => acc + Number(t.valor), 0);
-      return { ...meta, gastoAtual };
-    });
-  }, [metas, transacoes]);
+    return metas.map(meta => ({
+      ...meta,
+      valorAtual: meta.valor_atual || 0, // garante que o valor exista
+    }));
+  }, [metas]);
 
   return (
     <div className="flex font-sans bg-slate-950 text-slate-100 min-h-screen">
@@ -145,19 +180,22 @@ export default function MetasPage() {
                 <FiPlus />Criar Meta
               </motion.button>
             </header>
-            
+
             <AnimatePresence>
               {isLoading ? (
-                <div className="text-center py-16"><FiLoader className="animate-spin text-orange-500 mx-auto" size={48}/></div>
+                <div className="text-center py-16"><FiLoader className="animate-spin text-orange-500 mx-auto" size={48} /></div>
               ) : metasComProgresso.length > 0 ? (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {metasComProgresso.map(meta => (
-                    <GoalCard 
-                      key={meta.id} 
-                      meta={meta} 
-                      gastoAtual={meta.gastoAtual} 
-                      onEdit={setEditMeta} 
-                      onDelete={handleDelete}
+                    <GoalCard
+                      key={meta.id}
+                      meta={meta}
+
+                      valorAtual={meta.valorAtual}
+                      onEdit={() => setEditMeta(meta)}
+                      onDelete={() => handleDelete(meta.id)}
+                      onInvest={() => setInvestimento({ isOpen: true, meta, type: 'investir' })}
+                      onWithdraw={() => setInvestimento({ isOpen: true, meta, type: 'retirar' })}
                       isSubmitting={isSubmitting}
                     />
                   ))}
