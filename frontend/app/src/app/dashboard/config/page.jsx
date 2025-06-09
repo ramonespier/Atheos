@@ -94,9 +94,8 @@ export default function Config() {
         senha_atual: formData.senha_atual,
     };
     if (formData.nova_senha) {
-        // O seu backend deve esperar a nova senha na chave 'senha'
-        dadosParaEnviar.senha = formData.nova_senha; 
-    }
+          dadosParaEnviar.senha = formData.nova_senha; 
+      }
 
     try {
       const token = localStorage.getItem('token');
@@ -109,21 +108,20 @@ export default function Config() {
       const data = await res.json();
       
       if (!res.ok) {
-        // PONTO CRÍTICO DE DEBUG: Veja exatamente o que o servidor respondeu
-        console.error("ERRO DO BACKEND:", data); 
-        const errorMessage = data.err || "Erro desconhecido. Verifique o console.";
+        const errorMessage = data.err || "Ocorreu um erro descohecido";
         throw new Error(errorMessage);
       }
-      
+
       toast.success("Alterações salvas com sucesso!", { id: toastId });
       setUsuario(prev => ({ ...prev, nome: formData.nome, email: formData.email }));
       // Limpa os campos de senha por segurança após o sucesso
       setFormData(prev => ({...prev, senha_atual: '', nova_senha: '', confirma_senha: ''}));
 
     } catch (err) {
-      // Exibe a mensagem de erro específica do backend
       toast.error(err.message, { id: toastId });
+
     } finally {
+      
       setIsSubmitting(false);
     }
   };
