@@ -1,7 +1,7 @@
 // /app/layout.js (VERSÃO FINAL E CORRIGIDA)
 
 import "./globals.css";
-
+import GlobalLayout from "./components/SplashScreen/GlobalLayout";
 // Se você tiver fontes, elas ficam aqui. Exemplo:
 // import { Inter } from "next/font/google";
 // const inter = Inter({ subsets: ["latin"] });
@@ -17,7 +17,9 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR" className="!scroll-smooth">
       <body>
         {/* Não há mais nenhum wrapper aqui, apenas o children */}
+        <GlobalLayout>
         {children}
+        </GlobalLayout>
       </body>
     </html>
   );

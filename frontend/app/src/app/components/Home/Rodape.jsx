@@ -22,7 +22,7 @@ const Footer = () => {
           </h3>
           <ul className="space-y-3 text-sm">
             
-            {['Home', 'Utilização', 'Cadastre', 'Depoimentos'].map((item, idx) => {
+            {['Home', 'Destino', 'Cadastre', 'Depoimentos'].map((item, idx) => {
               // Converte o nome em ID compatível: tudo minúsculo, espaços em hífens
               const id = item.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
               return (
