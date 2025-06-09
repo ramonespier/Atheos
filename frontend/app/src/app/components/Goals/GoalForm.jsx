@@ -27,8 +27,8 @@ export default function GoalForm({ onSubmit, isSubmitting, onClose, initialData,
             <input type="text" id="nome" name="nome" required defaultValue={initialData?.nome} placeholder="Ex: Gastos com Lazer" className={inputBase} />
           </div>
           <div>
-            <label htmlFor="valor_limite" className="text-sm text-slate-400 mb-1 block">Valor Limite (R$)</label>
-            <input type="text" id="valor_limite" name="valor_limite" inputMode="decimal" required defaultValue={initialData?.valor_limite?.replace('.', ',')} placeholder="Ex: 500,00" className={inputBase} />
+            <label htmlFor="valorDaMeta" className="text-sm text-slate-400 mb-1 block">Valor Limite (R$)</label>
+            <input type="text" id="valorDaMeta" name="valorDaMeta" inputMode="decimal" required defaultValue={initialData?.valorDaMeta?.replace('.', ',')} placeholder="Ex: 500,00" className={inputBase} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
