@@ -54,7 +54,7 @@ export default function Informacoes() {
                             <div className="relative z-10">
                                 <Icon className="w-10 h-10 mb-6 text-orange-400" />
                                 <h3 className="text-2xl font-semibold mb-3 text-slate-100">{titulo}</h3>
-                                <p  id="cadastre" className="text-slate-400 text-sm leading-relaxed">{texto}</p>
+                                <p  id="cadastre-se" className="text-slate-400 text-sm leading-relaxed">{texto}</p>
                             </div>
                         </motion.div>
                     ))}

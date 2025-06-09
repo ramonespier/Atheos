@@ -1,4 +1,3 @@
-// /app/dashboard/extratos/page.js (VERSÃO FINAL - CORREÇÃO DE SINTAXE)
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -14,7 +13,7 @@ import Header from '../../components/DashBoard/Header';
 import Footer from '../../components/DashBoard/Footer.jsx';
 
 // =================================================================================
-// LÓGICA FUNCIONAL (CORRETA)
+// LÓGICA FUNCIONAL (COM MODAL DE DELETE)
 // =================================================================================
 
 const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
@@ -29,6 +28,9 @@ export default function Extratos() {
   const [transacoes, setTransacoes] = useState([]);
   const [editTransacao, setEditTransacao] = useState(null);
   const [globalError, setGlobalError] = useState(null);
+  
+  // *** NOVO ESTADO PARA O MODAL DE CONFIRMAÇÃO ***
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
   
   // Estados de Ação
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -139,9 +141,12 @@ export default function Extratos() {
       setIsSubmitting(false);
     }
   };
+  
+  // *** FUNÇÃO DE EXCLUSÃO ATUALIZADA ***
+  const excluirTransacao = async () => {
+    if (!transactionToDelete) return; // Segurança
 
-  const excluirTransacao = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir? A ação é irreversível.")) return;
+    const id = transactionToDelete.id;
     const token = localStorage.getItem('token');
     const toastId = toast.loading('Excluindo...');
     setIsSubmitting(true);
@@ -157,14 +162,22 @@ export default function Extratos() {
       toast.error(`Erro: ${error.message}`, { id: toastId });
     } finally {
       setIsSubmitting(false);
+      fecharModalConfirmacaoDelete(); // Fecha o modal após a operação
     }
   };
 
   const abrirModalEdicao = (transacao) => {
     setEditTransacao({ ...transacao, valor: String(transacao.valor).replace('.', ',') });
   };
-
   const fecharModalEdicao = () => setEditTransacao(null);
+  
+  // *** NOVAS FUNÇÕES PARA CONTROLAR O MODAL DE DELETE ***
+  const abrirModalConfirmacaoDelete = (transacao) => {
+    setTransactionToDelete(transacao);
+  };
+  const fecharModalConfirmacaoDelete = () => {
+    setTransactionToDelete(null);
+  };
   
   const formatCurrency = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -215,7 +228,6 @@ export default function Extratos() {
               <p className="text-slate-400 mt-1">Adicione, edite e visualize todas as suas movimentações financeiras.</p>
             </header>
 
-            {/* BARRA DE FILTROS E AÇÕES */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-900/50 rounded-2xl border border-slate-700/80 mb-6">
               <div className="flex items-center gap-2">
                 <button onClick={() => setFilter('all')} className={clsx("px-4 py-2 rounded-lg text-sm font-semibold transition-colors", filter === 'all' ? "bg-orange-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-700")}>Todos</button>
@@ -226,7 +238,6 @@ export default function Extratos() {
               <motion.button onClick={() => setShowForm(!showForm)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-orange-500/40 transition-shadow" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}><FiPlus />Nova Transação</motion.button>
             </div>
 
-            {/* FORMULÁRIO DE ADIÇÃO (RECOLHÍVEL) */}
             <AnimatePresence>
               {showForm && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
@@ -244,7 +255,6 @@ export default function Extratos() {
               )}
             </AnimatePresence>
 
-            {/* LISTA DE TRANSAÇÕES */}
             <motion.div variants={containerVariants} initial="hidden" animate="visible">
               {isLoadingData ? (
                 <div className="text-center py-16"><FiLoader className="animate-spin text-orange-500 mx-auto" size={48}/></div>
@@ -255,7 +265,7 @@ export default function Extratos() {
                     <ul className="space-y-3">
                       <AnimatePresence>
                         {items.map(t => (
-                          <motion.li key={t.id} layout variants={itemVariants} exit={{ opacity: 0, x: -30 }} className="group relative p-[2px] rounded-xl bg-slate-800/50"><div className="flex items-center justify-between p-4 rounded-[10px] bg-slate-900"><div className="flex items-center gap-4"><div className={clsx("w-10 h-10 rounded-lg flex items-center justify-center", t.tipo === 'entrada' ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400")}>{t.tipo === 'entrada' ? <FiTrendingUp /> : <FiTrendingDown />}</div><div><p className="font-semibold text-slate-100">{t.nome}</p><p className="text-xs text-slate-400">{new Date(t.data).toLocaleDateString('pt-BR')}</p></div></div><div className="flex items-center gap-6"><p className={clsx("font-bold text-lg", t.tipo === 'entrada' ? "text-green-400" : "text-red-400")}>{formatCurrency(t.valor)}</p><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button disabled={isSubmitting} onClick={() => abrirModalEdicao(t)} className="p-2 text-slate-400 hover:text-orange-400"><FiEdit2 /></button><button disabled={isSubmitting} onClick={() => excluirTransacao(t.id)} className="p-2 text-slate-400 hover:text-red-400"><FiTrash2 /></button></div></div></div><div className="absolute inset-0 rounded-xl bg-[conic-gradient(from_90deg_at_50%_50%,#f97316_0%,#1e293b_50%,#f97316_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" /></motion.li>
+                          <motion.li key={t.id} layout variants={itemVariants} exit={{ opacity: 0, x: -30 }} className="group relative p-[2px] rounded-xl bg-slate-800/50"><div className="flex items-center justify-between p-4 rounded-[10px] bg-slate-900"><div className="flex items-center gap-4"><div className={clsx("w-10 h-10 rounded-lg flex items-center justify-center", t.tipo === 'entrada' ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400")}>{t.tipo === 'entrada' ? <FiTrendingUp /> : <FiTrendingDown />}</div><div><p className="font-semibold text-slate-100">{t.nome}</p><p className="text-xs text-slate-400">{new Date(t.data).toLocaleDateString('pt-BR')}</p></div></div><div className="flex items-center gap-6"><p className={clsx("font-bold text-lg", t.tipo === 'entrada' ? "text-green-400" : "text-red-400")}>{formatCurrency(t.valor)}</p><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button disabled={isSubmitting} onClick={() => abrirModalEdicao(t)} className="p-2 text-slate-400 hover:text-orange-400"><FiEdit2 /></button><button disabled={isSubmitting} onClick={() => abrirModalConfirmacaoDelete(t)} className="p-2 text-slate-400 hover:text-red-400"><FiTrash2 /></button></div></div></div><div className="absolute inset-0 rounded-xl bg-[conic-gradient(from_90deg_at_50%_50%,#f97316_0%,#1e293b_50%,#f97316_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" /></motion.li>
                         ))}
                       </AnimatePresence>
                     </ul>
@@ -281,11 +291,33 @@ export default function Extratos() {
                   <div><label htmlFor="nomeEdit" className="text-sm font-medium text-slate-400 mb-1 block">Nome</label><input type="text" id="nomeEdit" name="nome" required defaultValue={editTransacao.nome} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
                   <div><label htmlFor="tipoEdit" className="text-sm font-medium text-slate-400 mb-1 block">Tipo</label><div className="relative"><select name="tipo" id="tipoEdit" defaultValue={editTransacao.tipo} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none appearance-none pr-10"><option value="saida" className="bg-slate-800">Saída (Despesa)</option><option value="entrada" className="bg-slate-800">Entrada (Receita)</option></select><FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" /></div></div>
                   <div><label htmlFor="valorEdit" className="text-sm font-medium text-slate-400 mb-1 block">Valor (R$)</label><input type="text" name="valor" id="valorEdit" inputMode="decimal" required defaultValue={editTransacao.valor} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
-                  {/* ** AQUI ESTÁ A CORREÇÃO ** */}
                   <div><label htmlFor="descricaoEdit" className="text-sm font-medium text-slate-400 mb-1 block">Descrição</label><textarea name="descricao" id="descricaoEdit" rows="2" defaultValue={editTransacao.descricao} className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 focus:ring-2 focus:ring-orange-500 focus:outline-none" /></div>
                 </div>
                 <div className="flex justify-end gap-4 mt-6"><button type="button" onClick={fecharModalEdicao} className="font-semibold py-2 px-5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200">Cancelar</button><motion.button type="submit" disabled={isSubmitting} className="font-semibold py-2 px-5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg disabled:opacity-50" whileTap={{ scale: 0.95 }}>{isSubmitting ? <FiLoader className="animate-spin" /> : 'Salvar'}</motion.button></div>
               </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* *** NOVO MODAL DE CONFIRMAÇÃO DE DELETE *** */}
+      <AnimatePresence>
+        {transactionToDelete && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[50] p-4" onClick={fecharModalConfirmacaoDelete}>
+            <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" onClick={(e) => e.stopPropagation()} className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6 text-center">
+              <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FiAlertTriangle size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-100 mb-2">Confirmar Exclusão</h3>
+              <p className="text-slate-400 mb-6">
+                Tem certeza que deseja excluir a transação "{transactionToDelete.nome}"? <br/> A ação é irreversível.
+              </p>
+              <div className="flex justify-center gap-4">
+                <button type="button" onClick={fecharModalConfirmacaoDelete} className="font-semibold py-3 px-6 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 w-full">Cancelar</button>
+                <motion.button type="button" onClick={excluirTransacao} disabled={isSubmitting} className="font-semibold py-3 px-6 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg disabled:opacity-50 w-full" whileTap={{ scale: 0.95 }}>
+                    {isSubmitting ? <FiLoader className="animate-spin mx-auto" /> : 'Excluir'}
+                </motion.button>
+              </div>
             </motion.div>
           </motion.div>
         )}

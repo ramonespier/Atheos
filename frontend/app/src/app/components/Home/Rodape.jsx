@@ -22,7 +22,7 @@ const Footer = () => {
           </h3>
           <ul className="space-y-3 text-sm">
             
-            {['Home', 'Destino', 'Cadastre', 'Depoimentos'].map((item, idx) => {
+            {['Home', 'Destino', 'Cadastre-se', 'Depoimentos'].map((item, idx) => {
               // Converte o nome em ID compatível: tudo minúsculo, espaços em hífens
               const id = item.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
               return (
@@ -43,7 +43,7 @@ const Footer = () => {
         {/* Coluna 3 */}
         <div>
           <h3 className="text-lg font-bold mb-4 hover:text-orange-500 transition-colors duration-300 cursor-pointer">
-            Siga a Gente
+            Nos Siga
           </h3>
           <div className="flex space-x-6">
             {[
