@@ -6,6 +6,7 @@ import { FiArrowUp } from "react-icons/fi";
 import validator from 'validator';
 import { toast, Toaster } from 'react-hot-toast';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter()
@@ -131,9 +132,13 @@ export default function Home() {
             : "bg-gradient-to-br from-black via-black/35 to-orange-900 border-orange-700 hover:shadow-white/30 scale-[1.03]"
           }`}
       >
-        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg animate-pulse">
-          <span className="text-white text-2xl">🏛️</span>
-        </div>
+        <Link href={"/"}>
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg animate-pulse">
+            <span className="text-white text-2xl">
+              🏛️
+            </span>
+          </div>
+        </Link>
 
         <h1 className="mt-6 text-3xl font-extrabold text-white uppercase tracking-widest transition-all duration-500">
           {isLogin ? "Portal dos Deuses" : "Crie Seu Altar"}

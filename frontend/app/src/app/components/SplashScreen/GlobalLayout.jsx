@@ -8,7 +8,7 @@ export default function GlobalLayout({ children }) {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => {    
     const handleStart = () => setIsLoading(true);
     const handleComplete = () => setIsLoading(false);
 
@@ -17,7 +17,7 @@ export default function GlobalLayout({ children }) {
     // Tempo mínimo de exibição (ajuste conforme necessário)
     const timer = setTimeout(() => {
       handleComplete();
-    }, 700); // Reduzido para 800ms para ser mais ágil
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [pathname]);
