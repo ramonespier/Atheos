@@ -1,4 +1,4 @@
-// /app/dashboard/page.js (VERSÃO FINAL COM NOVOS GRÁFICOS)
+// /app/dashboard/page.js (VERSÃO COM LÓGICA ORIGINAL RESTAURADA)
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -15,7 +15,6 @@ import FinancialGoals from "../components/DashBoard/FinancialGoals";
 import Footer from "../components/DashBoard/Footer";
 import StatCard from '../components/DashBoard/StatCard';
 import DashboardSkeleton from "../components/DashBoard/DashboardSkeleton";
-// NOVOS COMPONENTES
 import MonthlyBalanceSummary from "../components/DashBoard/MonthlyBalanceSummary";
 import BalanceHistoryChart from "../components/DashBoard/BalanceHistoryChart";
 
@@ -33,24 +32,15 @@ export default function Home() {
   const router = useRouter();
   const [usuario, setUsuario] = useState({});
   const [dadosDashboard, setDadosDashboard] = useState({
-    transferencias: [], saldo: 0, receitas: 0, despesas: 0
+    transferencias: [], 
+    saldo: 0, 
+    receitas: 0, // Nome revertido para 'receitas'
+    despesas: 0  // Nome revertido para 'despesas'
   });
   const [carregando, setCarregando] = useState(true);
 
-  // Efeito Aurora no Fundo
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      document.body.style.setProperty('--x', `${e.clientX}px`);
-      document.body.style.setProperty('--y', `${e.clientY}px`);
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   // Lógica de fetch de dados
   useEffect(() => {
-    // ... sua lógica de fetch continua aqui (a mesma da versão anterior)...
-    // O código abaixo é uma representação da sua lógica de fetch funcional
     const token = localStorage.getItem("token");
     if (!token) {
         router.push("/login");
@@ -63,21 +53,39 @@ export default function Home() {
                 fetch("http://localhost:3001/usuario/dashboard/saldo", { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch("http://localhost:3001/usuario/dashboard/extratos", { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
-            if (!resUsuario.ok) throw new Error("Sessão inválida.");
+
+            if (!resUsuario.ok || !resSaldo.ok || !resTransacoes.ok) {
+                throw new Error("Sessão inválida ou falha ao buscar dados.");
+            }
+
             const dadosUsuario = await resUsuario.json();
             const dadosSaldo = await resSaldo.json();
             const dadosTransacoes = await resTransacoes.json();
-            const receitas = dadosTransacoes.filter(t => t.tipo === 'entrada').reduce((acc, curr) => acc + Number(curr.valor), 0);
-            const despesas = dadosTransacoes.filter(t => t.tipo === 'saida').reduce((acc, curr) => acc + Number(curr.valor), 0);
+
+            // ================== LÓGICA REVERTIDA E SIMPLIFICADA ==================
+            
+            // Calcula as receitas TOTAIS de todo o histórico, incluindo as de metas.
+            const receitasTotais = dadosTransacoes
+                .filter(t => t.tipo === 'entrada')
+                .reduce((acc, curr) => acc + Number(curr.valor), 0);
+
+            // Calcula as despesas TOTAIS de todo o histórico, incluindo as de metas.
+            const despesasTotais = dadosTransacoes
+                .filter(t => t.tipo === 'saida')
+                .reduce((acc, curr) => acc + Number(curr.valor), 0);
+            
+            // =================== FIM DA ALTERAÇÃO ===================
+
             setUsuario(dadosUsuario);
             setDadosDashboard({
                 transferencias: dadosTransacoes || [],
                 saldo: Number(dadosSaldo[0]?.saldo) || 0,
-                receitas,
-                despesas,
+                receitas: receitasTotais,
+                despesas: despesasTotais,
             });
         } catch (error) {
             toast.error(error.message);
+            router.push('/login');
         } finally {
             setCarregando(false);
         }
@@ -98,15 +106,17 @@ export default function Home() {
       });
     }
 
-    const groupedData = dadosDashboard.transferencias.reduce((acc, t) => {
-      const date = new Date(t.data);
-      const key = `${date.getFullYear()}-${date.getMonth()}`;
-      if (!acc[key]) {
-        acc[key] = { receitas: 0, despesas: 0 };
-      }
-      if (t.tipo === 'entrada') acc[key].receitas += Number(t.valor);
-      else acc[key].despesas += Number(t.valor);
-      return acc;
+    // A lógica do gráfico também é simplificada para ser consistente com os cards
+    const groupedData = dadosDashboard.transferencias
+      .reduce((acc, t) => {
+          const date = new Date(t.data);
+          const key = `${date.getFullYear()}-${date.getMonth()}`;
+          if (!acc[key]) {
+            acc[key] = { receitas: 0, despesas: 0 };
+          }
+          if (t.tipo === 'entrada') acc[key].receitas += Number(t.valor);
+          else acc[key].despesas += Number(t.valor);
+          return acc;
     }, {});
     
     return {
@@ -116,10 +126,11 @@ export default function Home() {
     };
   }, [dadosDashboard.transferencias]);
 
+  // Atualiza os dados dos cartões para usar os valores totais
   const cardData = [
     { title: "Saldo Atual", value: dadosDashboard.saldo, icon: Wallet, color: "default" },
-    { title: "Receitas Totais (Mês)", value: dadosDashboard.receitas, icon: TrendingUp, color: "green", sign: "+" },
-    { title: "Despesas Totais (Mês)", value: dadosDashboard.despesas, icon: TrendingDown, color: "red", sign: "-" },
+    { title: "Receitas Totais", value: dadosDashboard.receitas, icon: TrendingUp, color: "green", sign: "+" },
+    { title: "Despesas Totais", value: dadosDashboard.despesas, icon: TrendingDown, color: "red", sign: "-" },
   ];
 
   return (
@@ -145,6 +156,7 @@ export default function Home() {
               {cardData.map((card, i) => <StatCard key={i} {...card} />)}
               
               <motion.div variants={itemVariants} className="lg:col-span-2">
+                {/* O resumo agora mostra os valores totais, não apenas do mês */}
                 <MonthlyBalanceSummary receitas={dadosDashboard.receitas} despesas={dadosDashboard.despesas} />
               </motion.div>
 

@@ -206,11 +206,10 @@ export default function TransactionList() {
 
       {allTransferencias.length > MAX_ITEMS_DISPLAYED && (
         <div className="mt-3 text-center"> {/* Margem superior menor */}
-          <Link href="/dashboard/extratos" legacyBehavior>
-            <a className="inline-flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 hover:underline transition-colors duration-150 font-medium py-1.5 px-3 rounded-md hover:bg-orange-500/10">
+          <Link href="/dashboard/extratos"className="inline-flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 hover:underline transition-colors duration-150 font-medium py-1.5 px-3 rounded-md hover:bg-orange-500/10">
               Ver todas ({allTransferencias.length})
               <FontAwesomeIcon icon={faArrowRight} className="w-3 h-3"/>
-            </a>
+            
           </Link>
         </div>
       )}
