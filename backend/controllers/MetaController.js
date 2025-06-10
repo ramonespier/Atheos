@@ -3,7 +3,7 @@ import { adicionarMetas, atualizarMetas, excluirMetas, investirNaMeta, retirarDa
 
 const metaController = async (req, res) => {
     try {
-        const meta = await readAll('view_metas', `usuario_id = ${req.usuarioId}`)
+        const meta = await readAll('metas', `usuario_id = ${req.usuarioId}`)
 
         if (!meta) {
             return res.status(404).json({ message: 'Meta não encontrada para este usuário' })
