@@ -109,7 +109,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black transition-all duration-1000">
+    // RESPONSIVO: Adicionado px-4 para dar espaçamento nas laterais em telas pequenas
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black transition-all duration-1000 px-4">
       <Head>
         <title>{isLogin ? "Login" : "Cadastro"} | Portal dos Deuses</title>
         <meta name="theme-color" content="#111827" />
@@ -125,8 +126,9 @@ export default function Home() {
         }}
       />
 
+      {/* RESPONSIVO: O card agora tem padding menor (p-6) em telas pequenas e maior (sm:p-10) em telas a partir de 640px */}
       <div
-        className={`relative border rounded-3xl shadow-2xl p-10 w-full max-w-md text-center backdrop-blur-x5 transition-all duration-700
+        className={`relative border rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-md text-center backdrop-blur-x5 transition-all duration-700
           ${isLogin
             ? "bg-gradient-to-br from-black via-black/90 to-orange-900 border-gray-800 hover:shadow-orange-500/30"
             : "bg-gradient-to-br from-black via-black/35 to-orange-900 border-orange-700 hover:shadow-white/30 scale-[1.03]"
@@ -139,8 +141,9 @@ export default function Home() {
             </span>
           </div>
         </Link>
-
-        <h1 className="mt-6 text-3xl font-extrabold text-white uppercase tracking-widest transition-all duration-500">
+        
+        {/* RESPONSIVO: Tamanho da fonte ajustado para telas pequenas (text-2xl) e maiores (sm:text-3xl) */}
+        <h1 className="mt-6 text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-widest transition-all duration-500">
           {isLogin ? "Portal dos Deuses" : "Crie Seu Altar"}
         </h1>
         <p className="mt-2 text-sm text-gray-400 transition-all duration-500">
@@ -243,13 +246,17 @@ export default function Home() {
           </button>
         </form>
 
-        <div className="absolute top-1/2 -right-8 transform -translate-y-1/2">
+        {/* RESPONSIVO: Este é o container do botão de alternância.
+            - Em telas pequenas (padrão): ele fica abaixo do formulário (mt-8).
+            - Em telas médias e maiores (md:): ele volta para a posição absoluta na lateral direita.
+        */}
+        <div className="mt-8 flex justify-center md:absolute md:top-1/2 md:-right-8 md:transform md:-translate-y-1/2 md:mt-0">
           <div className="relative">
             <button
               onClick={() => setIsLogin(!isLogin)}
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
-              className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-all duration-500 hover:rotate-180 hover:scale-125 ${isLogin ? "" : "rotate-90"
+              className={`group bg-gradient-to-r from-orange-500 to-orange-700 p-3 rounded-full shadow-lg transition-all duration-500 hover:scale-125 md:hover:rotate-180 ${isLogin ? "" : "rotate-90"
                 }`}
             >
               <FiArrowUp
@@ -259,9 +266,10 @@ export default function Home() {
             </button>
 
             {showTooltip && (
-              <div className="absolute right-full top-1/2 transform -translate-y-1/2 mr-3">
+              // Esconde o tooltip em telas pequenas para não quebrar o layout
+              <div className="hidden md:block absolute right-full top-1/2 transform -translate-y-1/2 mr-3">
                 <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
-                  Faça cadastro!
+                  {isLogin ? "Faça cadastro!" : "Faça login!"}
                   <div className="absolute left-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-t-transparent border-b-transparent border-l-orange-700"></div>
                 </div>
               </div>
