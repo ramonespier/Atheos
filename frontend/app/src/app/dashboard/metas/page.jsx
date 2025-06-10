@@ -11,9 +11,10 @@ import { FiPlus, FiLoader, FiArchive } from "react-icons/fi";
 import Sidebar from '../../components/DashBoard/Sidebar';
 import Header from '../../components/DashBoard/Header';
 import Footer from '../../components/DashBoard/Footer.jsx';
-import GoalCard from '../../components/Goals/GoalCard';
+// import GoalCard from '../../components/Goals/GoalCard';
 import GoalForm from '../../components/Goals/GoalForm';
 import InvestmentModal from "@/app/components/Investimento/Investimento";
+import DoughMeta from "@/app/components/DoughMeta/DoughMeta";
 
 const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
@@ -41,6 +42,8 @@ export default function MetasPage() {
       if (!resMetas.ok || !resExtrato.ok) throw new Error("Falha ao carregar dados.");
       const dataMetas = await resMetas.json();
       const dataExtrato = await resExtrato.json();
+
+      console.log("Dados recebidos da API de metas:", dataMetas); 
       
       // Força a atualização do React criando uma nova referência de array
       setMetas([...dataMetas]);
@@ -162,24 +165,21 @@ export default function MetasPage() {
               </motion.button>
             </header>
             <AnimatePresence>
+              
               {isLoading ? (
                 <div className="text-center py-16"><FiLoader className="animate-spin text-orange-500 mx-auto" size={48} /></div>
               ) : metasComProgresso.length > 0 ? (
                 <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {metasComProgresso.map(meta => (
-                    <GoalCard
-                      // A SOLUÇÃO FINAL: Uma "etiqueta" que muda quando o valor investido muda.
-                      // Isso força o React a destruir o card antigo e criar um novo do zero.
-                      key={`${meta.id}-${meta.valorInvestido}`}
-                      
-                      meta={meta} // Passa o objeto meta, que já tem o progresso calculado.
-                      
-                      onEdit={() => setEditMeta(meta)}
-                      onDelete={() => handleDelete(meta.id)}
-                      onInvest={() => setInvestimento({ isOpen: true, meta, type: 'investir' })}
-                      onWithdraw={() => setInvestimento({ isOpen: true, meta, type: 'retirar' })}
-                      isSubmitting={isSubmitting}
-                    />
+                    <DoughMeta
+                    key={`${meta.id}-${meta.valorInvestido}`} // A key força a remontagem
+                    meta={meta}
+                    onEdit={() => setEditMeta(meta)}
+                    onDelete={() => handleDelete(meta.id)}
+                    onInvest={() => setInvestimento({ isOpen: true, meta, type: 'investir' })}
+                    onWithdraw={() => setInvestimento({ isOpen: true, meta, type: 'retirar' })}
+                    isSubmitting={isSubmitting}
+                />
                   ))}
                 </motion.div>
               ) : (
