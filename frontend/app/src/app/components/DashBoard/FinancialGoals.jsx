@@ -1,87 +1,110 @@
-// components/DashBoard/FinancialGoals.jsx (NOVA VERSÃO FUNCIONAL)
+// C:\...FinancialGoals.jsx (VERSÃO CORRIGIDA E ALINHADA COM A LÓGICA ULTIMATE)
 "use client";
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import GoalCard from '../Goals/GoalCard';
-import { FiTarget, FiLoader } from 'react-icons/fi';
+import { Target, Loader2, PlusCircle, CheckCircle, Award } from 'lucide-react';
+import clsx from 'clsx';
+
+function MiniGoalCard({ meta }) {
+  const valorInvestido = parseFloat(meta.valorInvestido || 0);
+  const valorDaMeta = parseFloat(meta.valorDaMeta || 1);
+  const isCompleted = valorInvestido >= valorDaMeta;
+  const progresso = isCompleted ? 100 : (valorInvestido / valorDaMeta) * 100;
+
+  return (
+    <motion.div layout variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
+      <div className="flex justify-between items-center gap-4">
+        <span className="text-sm font-medium text-slate-300 truncate flex items-center gap-2">
+          {isCompleted ? <CheckCircle className="text-green-400 shrink-0" size={16} /> : <Target className="text-orange-400 shrink-0" size={16} />}
+          {meta.nome}
+        </span>
+        <span className={clsx("text-sm font-bold shrink-0", isCompleted ? "text-green-400" : "text-orange-400")}>
+          {progresso.toFixed(0)}%
+        </span>
+      </div>
+      <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+        <motion.div
+          className={clsx("h-2 rounded-full", isCompleted ? "bg-green-500" : "bg-gradient-to-r from-orange-500 to-amber-400")}
+          initial={{ width: 0 }}
+          animate={{ width: `${progresso}%` }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+        />
+      </div>
+    </motion.div>
+  );
+}
 
 export default function FinancialGoals() {
   const [metas, setMetas] = useState([]);
-  const [transacoes, setTransacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    if (!token) { setIsLoading(false); return; }
+    
     const fetchData = async () => {
       try {
-        const [resMetas, resTransacoes] = await Promise.all([
-          fetch('http://localhost:3001/usuario/dashboard/metas', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:3001/usuario/dashboard/extratos', { headers: { 'Authorization': `Bearer ${token}` } })
-        ]);
-        if (!resMetas.ok || !resTransacoes.ok) throw new Error("Falha ao carregar dados de metas.");
-        
-        const dataMetas = await resMetas.json();
-        const dataTransacoes = await resTransacoes.json();
-        setMetas(dataMetas);
-        setTransacoes(dataTransacoes);
+        const res = await fetch('http://localhost:3001/usuario/dashboard/metas', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
+        if (!res.ok) throw new Error(`Falha ao carregar metas: ${res.statusText}`);
+        const dataMetas = await res.json();
+        setMetas(Array.isArray(dataMetas) ? dataMetas : []);
       } catch (error) {
-        console.error("Erro no componente FinancialGoals:", error);
+        console.error("Erro no FinancialGoals:", error.message);
+        setMetas([]);
       } finally {
         setIsLoading(false);
       }
     };
+    
     fetchData();
+    const handleRevalidate = () => fetchData();
+    window.addEventListener('saldoAtualizado', handleRevalidate);
+    return () => window.removeEventListener('saldoAtualizado', handleRevalidate);
   }, []);
 
-  const metasDoMesAtual = useMemo(() => {
-    const hoje = new Date();
-    const mesAtual = hoje.getMonth() + 1;
-    const anoAtual = hoje.getFullYear();
+  const { metasParaExibir, todasConcluidas } = useMemo(() => {
+    if (!metas || metas.length === 0) return { metasParaExibir: [], todasConcluidas: false };
 
-    return metas
-      .filter(meta => meta.mes === mesAtual && meta.ano === anoAtual)
-      .map(meta => {
-        const gastoAtual = transacoes
-          .filter(t => t.tipo === 'saida' && new Date(t.data).getMonth() + 1 === meta.mes && new Date(t.data).getFullYear() === meta.ano)
-          // Aqui você pode adicionar um filtro por categoria se suas metas forem por categoria
-          .reduce((acc, t) => acc + Number(t.valor), 0);
-        return { ...meta, gastoAtual };
-      });
-  }, [metas, transacoes]);
+    const activeGoals = metas.filter(m => parseFloat(m.valorInvestido || 0) < parseFloat(m.valorDaMeta || 1));
+    const completedGoals = metas.filter(m => parseFloat(m.valorInvestido || 0) >= parseFloat(m.valorDaMeta || 1));
+
+    activeGoals.sort((a, b) => (parseFloat(b.valorInvestido || 0) / parseFloat(b.valorDaMeta || 1)) - (parseFloat(a.valorInvestido || 0) / parseFloat(a.valorDaMeta || 1)));
+    completedGoals.sort((a, b) => new Date(b.atualizado_em || b.criado_em || 0) - new Date(a.atualizado_em || a.criado_em || 0));
+
+    const displayList = [...activeGoals, ...completedGoals].slice(0, 3);
+    
+    return { metasParaExibir: displayList, todasConcluidas: activeGoals.length === 0 && completedGoals.length > 0 };
+  }, [metas]);
 
   return (
-    <div className="relative p-[2px] rounded-2xl bg-white/5 h-full">
-      <div className="bg-slate-950 p-6 rounded-[14px] h-full flex flex-col">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-slate-200">Metas do Mês</h3>
-          <Link href="/dashboard/metas" className="text-sm text-orange-400 hover:underline">Ver todas</Link>
-        </div>
-        {isLoading ? (
-          <div className="flex-grow flex items-center justify-center"><FiLoader className="animate-spin text-orange-500" size={32}/></div>
-        ) : metasDoMesAtual.length > 0 ? (
-          <div className="flex-grow space-y-4 overflow-y-auto">
-            <AnimatePresence>
-              {metasDoMesAtual.map(meta => (
-                <GoalCard 
-                  key={meta.id} 
-                  meta={meta}
-                  gastoAtual={meta.gastoAtual}
-                  onEdit={() => {}} // Não editável no dashboard
-                  onDelete={() => {}} // Não deletável no dashboard
-                  isSubmitting={false}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="flex-grow flex flex-col items-center justify-center text-center text-slate-500">
-            <FiTarget size={40} className="mb-2"/>
-            <p>Nenhuma meta definida para este mês.</p>
-            <Link href="/dashboard/metas" className="text-orange-400 hover:underline mt-1 text-sm">Criar uma meta</Link>
-          </div>
-        )}
+    <motion.div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 h-full flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-lg font-semibold text-slate-200 flex items-center gap-2"><Target className="text-orange-400" />Progresso das Metas</h3>
+        <Link href="/dashboard/metas" className="text-sm text-orange-400 hover:text-orange-300 transition-colors hover:underline">Gerenciar</Link>
       </div>
-    </div>
+      <div className="flex-grow flex flex-col justify-center min-h-[150px]">
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center">
+              <Loader2 className="animate-spin text-orange-500" size={32}/>
+            </motion.div>
+          ) : metasParaExibir.length > 0 ? (
+            <motion.div key="goals-list" className="space-y-5" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} initial="hidden" animate="visible">
+              {metasParaExibir.map(meta => <MiniGoalCard key={meta.id} meta={meta} />)}
+            </motion.div>
+          ) : todasConcluidas ? (
+            <motion.div key="all-done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center text-green-400">
+              <Award size={40} className="mx-auto mb-3"/><p className="font-semibold text-slate-300">Parabéns!</p><p className="text-sm text-slate-400">Todas as suas metas foram alcançadas.</p>
+            </motion.div>
+          ) : (
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center text-slate-500">
+              <Target size={40} className="mx-auto mb-3"/><p className="font-semibold text-slate-400">Nenhuma meta em andamento.</p><p className="text-sm">Que tal começar a planejar seu próximo objetivo?</p>
+              <Link href="/dashboard/metas" className="mt-4 inline-flex items-center gap-2 text-sm text-white bg-orange-500/80 hover:bg-orange-500 font-semibold px-4 py-2 rounded-lg transition-colors"><PlusCircle size={16} />Criar Nova Meta</Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }
