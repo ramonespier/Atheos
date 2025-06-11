@@ -108,7 +108,7 @@ export default function Config() {
       const data = await res.json();
       
       if (!res.ok) {
-        const errorMessage = data.err || "Ocorreu um erro descohecido";
+        const errorMessage = data.message || "Ocorreu um erro descohecido";
         throw new Error(errorMessage);
       }
 

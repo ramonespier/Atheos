@@ -14,7 +14,7 @@ const cadastrarUsuarioController = async (req, res) => {
         res.status(201).json(novoUsuario)
     } catch (err) {
         console.error('Erro no controller ao cadastrar usuário', err)
-        res.status(500).json({ err: 'Erro ao cadastrar usuário.' })
+        res.status(500).json({ message: 'Erro ao cadastrar usuário.' })
     }
 }
 

@@ -80,7 +80,7 @@ export default function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(isLogin ? "Login realizado com sucesso! Entrando no olimpo..." : "Cadastro realizado com sucesso! Faça seu login!");
+        toast.success(data.message || isLogin ? "Login realizado com sucesso! Entrando no olimpo..." : "Cadastro realizado com sucesso! Faça seu login!");
 
         if (isLogin && data.token) {
           localStorage.setItem("token", data.token);
@@ -98,7 +98,7 @@ export default function Home() {
           });
         }
       } else {
-        toast.error(data.err || `Erro no ${isLogin ? "login" : "cadastro"}`);
+        toast.error(data.message || `Erro no ${isLogin ? "login" : "cadastro"}`);
       }
     } catch (err) {
       console.error("Erro na requisição:", err);
