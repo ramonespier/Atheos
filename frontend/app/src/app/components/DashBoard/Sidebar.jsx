@@ -2,148 +2,186 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTachometerAlt, faExchangeAlt, faBullseye, faCog, faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { clsx } from 'clsx'
+import {
+  LayoutDashboard,
+  ArrowRightLeft,
+  Target,
+  Settings,
+  Menu,
+  X,
+  CircleDollarSign, // <--- ÍCONE ALTERADO AQUI
+  BrainCircuit,
+} from 'lucide-react'
+
+// --- Variantes de Animação (Framer Motion) ---
+
+const sidebarVariants = {
+  hidden: { x: '-100%' },
+  visible: {
+    x: 0,
+    transition: { type: 'spring', stiffness: 120, damping: 20, staggerChildren: 0.07 },
+  },
+  exit: {
+    x: '-100%',
+    transition: { duration: 0.2 },
+  },
+};
+
+const navItemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1 },
+};
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   const menuItems = [
-    { label: 'Dashboard', icon: faTachometerAlt, href: '/dashboard' },
-    { label: 'Transações', icon: faExchangeAlt, href: '/dashboard/extratos' },
-    { label: 'Metas', icon: faBullseye, href: '/dashboard/metas' },
-    { label: 'Configurações', icon: faCog, href: '/dashboard/config' },
+    { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+    { label: 'Transações', icon: ArrowRightLeft, href: '/dashboard/extratos' },
+    { label: 'Metas', icon: Target, href: '/dashboard/metas' },
+    { label: 'Configurações', icon: Settings, href: '/dashboard/config' },
   ]
 
   return (
     <>
-      <button
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
         className="
-          md:hidden fixed top-4 left-4 z-100 p-3 rounded-lg
-          bg-yellow-600 text-black
-          hover:bg-yellow-500
+          md:hidden fixed top-4 left-4 z-[100] p-2.5 rounded-full
+          bg-slate-800/80 text-orange-400 backdrop-blur-sm
+          hover:bg-slate-700/90 hover:text-orange-300
           transition-colors duration-300
-          shadow-lg shadow-yellow-700/70
-          focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
-          active:scale-95
+          border border-slate-700
+          focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-950
         "
         aria-label="Abrir ou fechar menu"
       >
-        <FontAwesomeIcon icon={open ? faTimes : faBars} />
-      </button>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={open ? 'x' : 'menu'}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 90, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {open ? <X size={24} /> : <Menu size={24} />}
+          </motion.div>
+        </AnimatePresence>
+      </motion.button>
 
-      <aside
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/50 z-[80] md:hidden"
+          aria-hidden="true"
+        />
+      )}
+
+      <motion.aside
         aria-label="Sidebar principal"
-        style={{ '--background': '#000000' }}
-        className={`
-          bg-[var(--background)] bg-opacity-90 backdrop-blur-[14px]
-          text-white
-          w-64 min-h-screen p-6
-          flex flex-col justify-between
-          shadow-2xl shadow-black/90
-          fixed z-80 top-0 left-0
-          transition-transform duration-300 ease-in-out
-          ${open ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0 md:static
-          border-r border-yellow-600/60
-          ring-1 ring-yellow-900/40
-        `}
+        className={clsx(`
+          bg-slate-900/80 backdrop-blur-lg text-slate-200
+          w-64 min-h-screen p-4 flex flex-col justify-between
+          border-r border-slate-800
+          fixed z-[90] top-0 left-0
+          md:static md:translate-x-0
+        `, {
+          'translate-x-0': open,
+          '-translate-x-full': !open,
+        })}
+        variants={sidebarVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
       >
         <div>
-          <h1
-            tabIndex={0}
-            className="
-              text-3xl font-extrabold mb-10 tracking-wide select-none
-              text-yellow-400 drop-shadow-[0_0_8px_rgba(255,193,7,0.8)]
-              cursor-pointer
-              hover:text-yellow-300
-              transition-colors duration-250
-              hover:drop-shadow-[0_0_14px_rgba(255,193,7,1)]
-              active:scale-[0.98]
-            "
-          >
-            PROJECT <span className="text-yellow-300">ATHEOS</span>
-          </h1>
+          {/* Logo/Título do Projeto */}
+          <motion.div variants={navItemVariants}>
+            <Link href="/dashboard" className="group flex items-center gap-3 px-2 mb-12">
+              {/* --- ÍCONE ALTERADO AQUI --- */}
+              <CircleDollarSign className="h-10 w-10 text-orange-500 group-hover:text-orange-400 transition-colors duration-300" />
+              <h1 className="
+                text-2xl font-bold tracking-wider select-none
+                text-slate-100 group-hover:text-white transition-colors duration-300
+              ">
+                ATHEOS
+              </h1>
+            </Link>
+          </motion.div>
 
-          <nav className="flex flex-col gap-6" aria-label="Menu de navegação">
-            {menuItems.map(({ label, icon, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="
-                  flex items-center gap-4 text-lg font-semibold rounded-lg px-4 py-3
-                  hover:text-yellow-300 hover:bg-yellow-900/40
-                  focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
-                  transition-all duration-300 select-none
-                  group
-                  relative
-                  active:scale-95
-                "
-                aria-label={`Ir para ${label}`}
-              >
-                <FontAwesomeIcon
-                  icon={icon}
-                  className="
-                    text-yellow-400 w-6 h-6 shrink-0
-                    group-hover:scale-125 group-hover:text-yellow-300
-                    transition-transform duration-300
-                    drop-shadow-[0_0_6px_rgba(255,193,7,0.9)]
-                  "
-                />
-                <div className="flex flex-col w-full">
-                  <span className="group-hover:underline">{label}</span>
-                  <div
-                    className="
-                      bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-700
-                      h-2 rounded-full
-                      scale-x-0 group-hover:scale-x-110
-                      transform origin-left
-                      transition-transform duration-300
-                      mt-1
-                      drop-shadow-[0_0_8px_rgba(255,193,7,0.8)]
-                    "
-                  ></div>
-                </div>
-              </Link>
-            ))}
-          </nav>
+          {/* Menu de Navegação */}
+          <motion.nav
+            className="flex flex-col gap-2"
+            aria-label="Menu de navegação"
+          >
+            {menuItems.map(({ label, icon: Icon, href }) => {
+              const isActive = pathname === href;
+              return (
+                <motion.div key={label} variants={navItemVariants}>
+                  <Link
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className={clsx(`
+                      flex items-center gap-4 text-sm font-medium rounded-md px-3 py-2.5
+                      transition-all duration-200 select-none group relative
+                      focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-900
+                    `, {
+                      'bg-orange-500/10 text-orange-400': isActive,
+                      'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50': !isActive,
+                    })}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.div
+                          layoutId="active-indicator"
+                          className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 rounded-r-full"
+                        />
+                      )}
+                    </AnimatePresence>
+                    <Icon className={clsx("h-5 w-5 shrink-0", {
+                      "text-orange-400": isActive,
+                    })} />
+                    <span>{label}</span>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </motion.nav>
         </div>
 
-        <div
+        {/* Box "Sabedoria de Athena" */}
+        <motion.div
+          variants={navItemVariants}
           className="
-            bg-black bg-opacity-70 backdrop-blur-md
-            p-6 rounded-2xl mt-12 shadow-inner
-            text-yellow-300 select-text font-semibold text-sm leading-relaxed tracking-wide
-            hover:bg-yellow-900/25
-            transition-colors duration-300
-            cursor-pointer
-            ring-1 ring-yellow-900/50
-            drop-shadow-[0_0_10px_rgba(255,193,7,0.5)]
+            bg-slate-800/50 border border-slate-700/50
+            p-4 rounded-lg mt-8
+            text-slate-400 text-xs leading-relaxed
           "
-          tabIndex={0}
-          aria-label="Mensagem motivacional do projeto"
         >
-          <h2 className="mb-3 text-yellow-400 text-base hover:underline cursor-pointer font-extrabold drop-shadow-[0_0_6px_rgba(255,193,7,1)]">
-            Sabedoria de Athena
-          </h2>
-          <p className="text-[0.9rem] leading-tight">
-            "Economize como{' '}
-            <span className="text-red-600 hover:text-red-400 cursor-pointer font-bold drop-shadow-[0_0_4px_rgba(220,20,60,0.9)]">
-              Hades
-            </span>{' '}
-            guarda suas riquezas, invista como{' '}
-            <span className="text-orange-500 hover:text-orange-400 cursor-pointer font-bold drop-shadow-[0_0_4px_rgba(255,140,0,0.9)]">
-              Hermes
-            </span>{' '}
-            negocia, mas também, viva um pouco do lazer, assim como{' '}
-            <span className="text-purple-900 hover:text-purple-600 cursor-pointer font-bold drop-shadow-[0_0_5px_rgba(128,0,128,0.9)]">
-              Dionísio
-            </span>
+          <div className="flex items-center gap-2 mb-3 text-orange-400">
+            <BrainCircuit size={18} />
+            <h2 className="font-semibold text-sm text-slate-200">
+              Sabedoria de Athena
+            </h2>
+          </div>
+          <p>
+            "Equilibre a rigidez de{' '}
+            <span className="font-semibold text-slate-300">Hades</span>,
+            a agilidade de{' '}
+            <span className="font-semibold text-slate-300">Hermes</span>
+            , e a alegria de{' '}
+            <span className="font-semibold text-slate-300">Dionísio</span>
             ."
           </p>
-        </div>
-      </aside>
+        </motion.div>
+      </motion.aside>
     </>
   )
 }
