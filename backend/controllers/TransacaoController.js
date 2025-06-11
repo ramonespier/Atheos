@@ -33,7 +33,7 @@ const adicionarTransacaoController = async (req, res) => {
         res.status(201).json({ message: 'Transação adicionada com sucesso!' })
     } catch (err) {
         console.error('Erro ao adicionar transação', err)
-        res.status(500).json({ message: 'Erro ao adicinar transação', err })
+        res.status(500).json({ message: 'Erro ao adicionar transação', err })
     }
 }
 
